@@ -1,70 +1,63 @@
-# Getting Started with Create React App
+# BBVABlockchainChecks
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Este repositorio contiene el código fuente de un proyecto React que integra un contrato inteligente de cheques NFT en la red Ethereum.
 
-## Available Scripts
+## Requisitos previos
 
-In the project directory, you can run:
+- Node.js (versión 14.x o superior) instalado en tu computadora. Puedes descargarlo desde [aquí](https://nodejs.org/en/).
+- [MetaMask](https://metamask.io/) instalado en tu navegador.
 
-### `npm start`
+## Instalación y configuración
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+1. Clona el repositorio en tu computadora local:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```
+git clone https://github.com/RamiroPeidro/BBVABlockchainChecks.git
+```
 
-### `npm test`
+2. Entra en la carpeta del proyecto:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```
+cd BBVABlockchainChecks
+```
 
-### `npm run build`
+3. Instala las dependencias del proyecto:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```
+npm install
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+4. Crea un archivo `.env` en la raíz del proyecto y agrega las variables de entorno necesarias, por ejemplo:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+REACT_APP_NFT_CHEQUE_ABI=<ABI de tu contrato>
+REACT_APP_NFT_CHEQUE_ADDRESS=<Dirección del contrato>
+```
 
-### `npm run eject`
+Reemplaza `<ABI de tu contrato>` y `<Dirección del contrato>` con los valores correspondientes a tu contrato de cheques NFT.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+5. Inicia el servidor de desarrollo local:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```
+npm start
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+El proyecto se iniciará en el navegador en `http://localhost:3000`.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Uso
 
-## Learn More
+1. Asegúrate de que MetaMask esté instalado en tu navegador y que esté conectado a la red en la que se encuentra tu contrato de cheques NFT (por ejemplo, Ropsten, Rinkeby, etc.).
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+2. Si aún no lo has hecho, importa la cuenta que deseas utilizar en MetaMask.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+3. Navega a `http://localhost:3000` en tu navegador. Verás la cantidad total de cheques en BBVA.
 
-### Code Splitting
+4. Realiza las acciones que desees con el contrato de cheques NFT utilizando los componentes proporcionados en la aplicación.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Contribución
 
-### Analyzing the Bundle Size
+Si deseas contribuir al proyecto, crea un fork del repositorio, realiza tus cambios y luego crea un pull request.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Licencia
 
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Este proyecto está licenciado bajo la [Licencia MIT](https://opensource.org/licenses/MIT).

@@ -1,0 +1,154 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300&display=swap');
+
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+
+
+header{
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    background-color: #fff;
+   
+
+    .logo{
+        img{
+            width: 90px;
+            margin-right: 10px;
+            
+        }
+    }
+
+    .nav-list{
+        display: flex;
+        align-items: center;
+        margin-right: 90px;
+    }
+
+    .nav-item{
+        list-style: none;
+        margin: 0 8px;
+    }
+
+    .nav-link{
+        font-size: 1rem;
+        padding-top: 1.5rem;
+        font-weight: 500;
+        text-decoration: none;
+        color: #000;
+        cursor: pointer;
+        border-radius: 30px;
+
+        &:hover{
+            color: lightblue;
+            border-radius: 30px;
+        }
+    }
+
+    #header-close, #header-toggle, #cart-toggle, #cart-toggle-count{
+        display: none;
+    }
+
+    #cart-menu-count{
+        padding-left: 20px;
+        text-decoration: none;
+    }
+
+    .ocultarMobile{
+        display: none;
+    }
+
+    .nav-desktop{
+        padding-left: 300px;
+        padding-top: 10px;
+    }
+
+
+    @media (max-width: 768px){
+        height: 48px;
+        justify-content:space-between;
+        padding: 0 28px;
+
+        .logo{
+            img{
+                width: 30px;
+                margin: 0;
+                padding-bottom: 10px;
+            }
+        }
+        
+        #cart-menu, #cart-menu-count{
+            display: none;
+        }
+
+        #header-toggle{
+            display: inline;
+            color: #000;
+            cursor: pointer;
+            font-size: 24px;
+        }
+
+        #header-close{
+            position: absolute;
+            right: 24px;
+            display: block;
+            font-size: 24px;
+            border-radius: 50%;
+            cursor: pointer;
+
+        }
+
+        #cart-toggle{
+            display: block;
+            margin-top: 40px;
+
+            &:hover{
+                color: salmon;
+                cursor: pointer;
+            }
+        }
+
+        .nav{
+            position: fixed;
+            top: 0;
+            right: -100%;
+            background-color: #000;
+            color: rgb(255, 255, 255);
+            width: 60%;
+            height: 100vh;
+            padding: 24px 0;
+            z-index: 100;
+            transition: .5s;
+            border-radius: 0 0 0 50%;
+        }
+
+        .nav-list{
+            display: flex;
+            flex-direction: column;
+            margin-top: 40px;
+            width: 100%;
+        }
+
+        .nav-item{
+            margin: 2rem 0;
+        }
+
+        .nav-link{
+            color: #fff;
+        }
+
+        .show{
+            right: 0;
+        }
+    }
+
+    .activeLink{
+        color: salmon !important;
+    }
+
+}

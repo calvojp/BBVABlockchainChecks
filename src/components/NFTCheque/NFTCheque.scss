@@ -1,0 +1,23 @@
+.nft-cheque {
+    font-family: 'Open Sans', sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 2rem;
+  
+    h2 {
+      font-size: 1.5rem;
+      color: #004481;
+      margin-bottom: 1rem;
+    }
+  
+    .total-cheques {
+      display: inline-block;
+      background-color: #004481;
+      color: #fff;
+      font-size: 3rem;
+      border-radius: 5px;
+      padding: 1rem 2rem;
+    }
+  }
+  

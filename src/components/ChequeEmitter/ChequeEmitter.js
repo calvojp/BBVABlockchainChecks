@@ -47,8 +47,8 @@ const ChequeEmitter = () => {
 			},
 		  });
 
-
-        await nftChequeContract.methods.mint(recipient, amount).send({ from: account });
+        await nftChequeContract.methods.mint(recipient, amount* 10 ** 2).send({ from: account });
+        // await nftChequeContract.methods.mint(recipient, amount).send({ from: account });
 
 		Swal.close();
 		

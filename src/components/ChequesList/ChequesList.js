@@ -95,51 +95,57 @@ const ChequesList = () => {
 
   
   return (
-    <div className="ChequesList">
-       <form className="form" onSubmit={handleSearch}>
-        <h2>Buscar cheques por dirección</h2>
-        <input
-          className="input"
-          type="text"
-          placeholder="Dirección de búsqueda"
-          value={searchAddress}
-          onChange={(e) => setSearchAddress(e.target.value)}
-        />
-        <div className="form-buttons">
-          <button className="button" type="submit">
-            Buscar cheques
-          </button>
-          <button className="button reset-button" type="button" onClick={handleReset}>
-            Reiniciar
-          </button>
-        </div>
-      </form>
-      <div className="cheque-cards">
-        {cheques.map((cheque) => (
-          <div key={cheque.id} className="cheque-card">
-            <div className="cheque-header">
-              <h3>Cheque</h3>
-              <h4>ID: {cheque.id}</h4>
-            </div>
-            <div className="cheque-body">
-              <p>
-                {/* Importe: <span>{web3.utils.fromWei(cheque.amount, 'ether')} ETH</span> */}
-                AR$ <span>{cheque.amount}</span>
-              </p>
-            </div>
-            <div className="cheque-footer">
-              <button
-                className="button withdraw-button"
-                onClick={() => handleWithdraw(cheque.id)}
-              >
-                Retirar fondos
-              </button>
-            </div>
+      <div className="ChequesList">
+        <form className="form" onSubmit={handleSearch}>
+          <h2>Buscar cheques por dirección</h2>
+          <input
+            className="input"
+            type="text"
+            placeholder="Dirección de búsqueda"
+            value={searchAddress}
+            onChange={(e) => setSearchAddress(e.target.value)}
+          />
+          <div className="form-buttons">
+            <button className="button" type="submit">
+              Buscar cheques
+            </button>
+            <button className="button reset-button" type="button" onClick={handleReset}>
+              Reiniciar
+            </button>
           </div>
-        ))}
+        </form>
+        <div className="cheque-cards">
+          {cheques.map((cheque) => (
+            <div key={cheque.id} className="cheque-card">
+              <div className="cheque-header">
+                <h3>Cheque</h3>
+                <h4>ID: {cheque.id}</h4>
+              </div>
+              <div className="cheque-body">
+                <p>
+                  {/* Importe: <span>{web3.utils.fromWei(cheque.amount, 'ether')} AR$</span> */}
+                  AR$ <span>{cheque.amount / (10 ** 2)}</span>
+                </p>
+              </div>
+              <div className="cheque-footer">
+                {cheque.amount > 0 ? (
+                  <button
+                    className="button withdraw-button"
+                    onClick={() => handleWithdraw(cheque.id)}
+                  >
+                    Retirar fondos
+                  </button>
+                ) : (
+                  <button className="button withdrawn-button" disabled>
+                    Cheque retirado
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </div>
-  );
+    );
 };
   
   export default ChequesList;

@@ -41,7 +41,18 @@ const ChequesList = () => {
         const chequeIds = await nftChequeContract.methods
           .getChequesByRecipient(searchAddress)
           .call({ from: account });
-  
+
+        console.log("antes del if")
+        if (chequeIds.length <= 0){
+          Swal.fire({
+            icon: 'error',
+            title: 'Error.',
+            text: 'No se encontro ningun cheque relacionado a esa dirección',
+            footer: '<a href="">Por qué tengo este problema?</a>'
+            });
+            return
+          }
+        
         const chequesData = await Promise.all(
           chequeIds.map(async (chequeId) => {
             const amount = await nftChequeContract.methods
@@ -73,7 +84,12 @@ const ChequesList = () => {
         alert('Fondos retirados con éxito');
       } catch (error) {
         console.error(error);
-        alert('Error al retirar los fondos');
+        Swal.fire({
+            icon: 'error',
+            title: 'Error.',
+            text: 'Error al retirar los fondos. Recordá aceptar la transacción en Metamask',
+            footer: '<a href="">Por qué tengo este problema?</a>'
+        });
       }
     };
 

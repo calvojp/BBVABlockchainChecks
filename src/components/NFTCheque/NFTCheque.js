@@ -40,7 +40,7 @@ export const NFTCheque = () => {
   
 	return (
 	  <div className="nft-cheque">
-		<h2>Total de blockchain-cheques en BBVA</h2>
+		<h2>Total Cheques</h2>
 		<div className="total-cheques">
 		  <span>{totalCheques}</span>
 		</div>

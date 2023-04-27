@@ -1,0 +1,137 @@
+// ChequesList.scss
+.ChequesList {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Roboto', sans-serif;
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 1rem;
+    width: 100%;
+    max-width: 400px;
+
+    .input {
+      background-color: #fff;
+      border: 1px solid #d4d4d4;
+      border-radius: 4px;
+      font-size: 16px;
+      margin-bottom: 1rem;
+      padding: 0.5rem;
+      width: 100%;
+    }
+
+    .form-buttons {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      gap: 1rem;
+
+      .button,
+      .reset-button {
+        background-color: #1a9cd8;
+        border: none;
+        border-radius: 4px;
+        color: white;
+        cursor: pointer;
+        font-size: 16px;
+        padding: 0.5rem 1rem;
+        text-transform: uppercase;
+        transition: background-color 0.2s ease-in-out;
+
+        &:hover {
+          background-color: #137ca0;
+        }
+      }
+
+      .reset-button {
+        background-color: #d9534f;
+
+        &:hover {
+          background-color: #c9302c;
+        }
+      }
+    }
+  }
+
+  .cheque-cards {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+
+  .cheque-card {
+    background-color: #f7f9fa;
+    border: 1px solid #d4d4d4;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1rem;
+    width: 200px;
+
+    .cheque-header {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+
+      h3 {
+        color: #004481;
+        font-size: 18px;
+        font-weight: bold;
+        margin: 0;
+      }
+
+      h4 {
+        color: #666;
+        font-size: 14px;
+        font-weight: bold;
+        margin: 0;
+      }
+    }
+
+    .cheque-body {
+      margin-top: 1.5rem;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+
+      p {
+        margin: 0;
+        font-size: 16px;
+        font-weight: bold;
+
+        span {
+          color: #004481;
+        }
+      }
+    }
+
+    .cheque-footer {
+      margin-top: 1.5rem;
+      width: 100%;
+
+      .withdraw-button {
+        background-color: #1a9cd8;
+        border-radius: 4px;
+        border: none;
+        color: white;
+        cursor: pointer;
+        font-size: 14px;
+        margin-top: 1rem;
+        padding: 0.5rem;
+        text-transform: uppercase;
+        transition: background-color 0.2s ease-in-out;
+        width: 100%;
+
+        &:hover {
+          background-color: #137ca0;
+        }
+      }
+    }
+  }
+}

@@ -25,7 +25,12 @@ const ChequeEmitter = () => {
   const emitCheque = async (e) => {
     e.preventDefault();
     if (!nftChequeContract || !web3) {
-      alert('Por favor, conecta a MetaMask primero');
+      Swal.fire({
+        icon: 'error',
+        title: 'Error.',
+        text: 'Recuerda conectarte a METAMASK antes.',
+        footer: '<a href="">Por qué tengo este problema?</a>'
+        })
       return;
     }
     // const weiAmount = web3.utils.toWei(amount, 'ether');

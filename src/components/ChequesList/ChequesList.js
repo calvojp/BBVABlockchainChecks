@@ -108,7 +108,7 @@ const ChequesList = () => {
             <div className="cheque-body">
               <p>
                 {/* Importe: <span>{web3.utils.fromWei(cheque.amount, 'ether')} ETH</span> */}
-                Importe: <span>{cheque.amount} AR$</span>
+                AR$ <span>{cheque.amount}</span>
               </p>
             </div>
             <div className="cheque-footer">

@@ -49,7 +49,7 @@ const ChequeEmitter = () => {
       // Llamar a la función 'approve' del contrato ERC20 antes de emitir el cheque
       const tokenAmount = amount * 10 ** 2;
       //descomentar
-      // await erc20TokenContract.methods.approve(nftChequeContract.options.address, tokenAmount).send({ from: account });
+      await erc20TokenContract.methods.approve(nftChequeContract.options.address, tokenAmount).send({ from: account });
 
       // Emitir el cheque
       await nftChequeContract.methods.mint(recipient, tokenAmount).send({ from: account });

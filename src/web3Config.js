@@ -2,7 +2,7 @@
 import Web3 from 'web3';
 import detectEthereumProvider from '@metamask/detect-provider';
 
-export const nftChequeAddress = '0xA2a67941CE07202186147639f67be10BD796091f';
+export const nftChequeAddress = '0x61A3CCC735593f7Ae21e405537E43503fcb6A76c';
 export const nftChequeAbi = [
 	{
 		"inputs": [
@@ -727,7 +727,7 @@ export const nftChequeAbi = [
 	}
 ];
 
-export const erc20TokenAddress = '0xeDf7f78495FE4F5deADcB2331daC4ED173889Af6'; // Cambia esto por la dirección del contrato ERC20
+export const erc20TokenAddress = '0xc0972377b8E3Ea2D6fB5FCe80d4D2aE5Bb5FB094';
 export const erc20TokenAbi = [
 	{
 		"inputs": [
@@ -1010,7 +1010,7 @@ export const erc20TokenAbi = [
 		"stateMutability": "nonpayable",
 		"type": "function"
 	}
-]; // Cambia esto por la ABI del contrato ERC20
+];
 
 export const connectMetaMask = async () => {
   const provider = await detectEthereumProvider();

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { connectMetaMask } from '../../web3Config';
 import './ChequesList.scss';
 import Swal from 'sweetalert2';
+import ChequeCard from '../ChequeCard/ChequeCard'; // Añade esta línea
 
 // ... (imports)
 
@@ -113,7 +114,7 @@ const ChequesList = () => {
     };
 
   
-  return (
+    return (
       <div className="ChequesList">
         <form className="form" onSubmit={handleSearch}>
           <h2>Buscar cheques por dirección</h2>
@@ -135,32 +136,12 @@ const ChequesList = () => {
         </form>
         <div className="cheque-cards">
           {cheques.map((cheque) => (
-            <div key={cheque.id} className="cheque-card">
-              <div className="cheque-header">
-                <h3>Cheque</h3>
-                <h4>ID: {cheque.id}</h4>
-              </div>
-              <div className="cheque-body">
-                <p>
-                  {/* Importe: <span>{web3.utils.fromWei(cheque.amount, 'ether')} AR$</span> */}
-                  AR$ <span>{cheque.amount / (10 ** 2)}</span>
-                </p>
-              </div>
-              <div className="cheque-footer">
-                {cheque.amount > 0 ? (
-                  <button
-                    className="button withdraw-button"
-                    onClick={() => handleWithdraw(cheque.id)}
-                  >
-                    Retirar fondos
-                  </button>
-                ) : (
-                  <button className="button withdrawn-button" disabled>
-                    Cheque cobrado
-                  </button>
-                )}
-              </div>
-            </div>
+            <ChequeCard
+              key={cheque.id}
+              chequeId={cheque.id}
+              amount={cheque.amount}
+              handleWithdraw={handleWithdraw}
+            />
           ))}
         </div>
       </div>

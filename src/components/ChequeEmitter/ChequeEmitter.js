@@ -9,70 +9,75 @@ const ChequeEmitter = () => {
   const [web3, setWeb3] = useState(null);
   const [account, setAccount] = useState('');
   const [nftChequeContract, setNftChequeContract] = useState(null);
+  const [erc20TokenContract, setErc20TokenContract] = useState(null); // Agregar esto
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
 
   useEffect(() => {
-	const init = async () => {
-    	const { web3Instance, account, nftChequeContract } = await connectMetaMask();
-    	setWeb3(web3Instance);
-      	setAccount(account);
-      	setNftChequeContract(nftChequeContract);
+    const init = async () => {
+      const { web3Instance, account, nftChequeContract, erc20TokenContract } = await connectMetaMask();
+      setWeb3(web3Instance);
+      setAccount(account);
+      setNftChequeContract(nftChequeContract);
+      setErc20TokenContract(erc20TokenContract); // Agregar esto
     };
     init();
   }, []);
 
   const emitCheque = async (e) => {
     e.preventDefault();
-    if (!nftChequeContract || !web3) {
+    if (!nftChequeContract || !web3 || !erc20TokenContract) {
       Swal.fire({
         icon: 'error',
         title: 'Error.',
         text: 'Recuerda conectarte a METAMASK antes.',
         footer: '<a href="">Por qué tengo este problema?</a>'
-        })
+      })
       return;
     }
-    // const weiAmount = web3.utils.toWei(amount, 'ether');
     try {
-        // await nftChequeContract.methods.mint(recipient, weiAmount).send({ from: account });
+      Swal.fire({
+        title: "Emitiendo cheque...",
+        text: "Por favor acepta la transacción en MetaMask",
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        willOpen: () => {
+          Swal.showLoading();
+        },
+      });
 
-		Swal.fire({
-			title: "Emitiendo cheque...",
-			text: "Por favor acepta la transacción en MetaMask",
-			allowOutsideClick: false,
-			showConfirmButton: false,
-			willOpen: () => {
-			  Swal.showLoading();
-			},
-		  });
+      // Llamar a la función 'approve' del contrato ERC20 antes de emitir el cheque
+      const tokenAmount = amount * 10 ** 2;
+      //descomentar
+      // await erc20TokenContract.methods.approve(nftChequeContract.options.address, tokenAmount).send({ from: account });
 
-        await nftChequeContract.methods.mint(recipient, amount* 10 ** 2).send({ from: account });
-        // await nftChequeContract.methods.mint(recipient, amount).send({ from: account });
+      // Emitir el cheque
+      await nftChequeContract.methods.mint(recipient, tokenAmount).send({ from: account });
 
-		Swal.close();
-		
-		Swal.fire(
-			'Finalizado',
-			`Cheque por AR$${amount} emitido con éxito.`,
-			'success'
-		  );
-		  console.log("Se emitio el cheque con exito, destinatario: ", recipient)
+      Swal.close();
+
+      Swal.fire(
+        'Finalizado',
+        `Cheque por AR$${amount} emitido con éxito.`,
+        'success'
+      );
+      console.log("Se emitio el cheque con exito, destinatario: ", recipient)
     } catch (error) {
-		Swal.fire({
-			icon: 'error',
-			title: 'Error en emisión del cheque.',
-			text: 'Algo salió mal',
-			footer: '<a href="">Por qué tengo este problema?</a>'
-		  })
+      Swal.fire({
+        icon: 'error',
+        title: 'Error en emisión del cheque.',
+        text: 'Algo salió mal',
+        footer: '<a href="">Por qué tengo este problema?</a>'
+      })
 
-        console.log(error)
+      console.log(error)
     }
   };
 
   useEffect(() => {
     connectMetaMask();
   }, []);
+
 
   return (
     <div className="ChequeEmitter">
@@ -88,7 +93,7 @@ const ChequeEmitter = () => {
         <input
           className="input"
           type="number"
-          placeholder="Cantidad"
+          placeholder="Monto en pesos"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
@@ -97,7 +102,7 @@ const ChequeEmitter = () => {
         </button>
       </form>
     </div>
-  );  
+  );
 };
 
 export default ChequeEmitter;

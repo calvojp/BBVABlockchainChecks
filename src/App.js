@@ -41,7 +41,8 @@ function App() {
           element={
             <div>
               <ChequeEmitter />
-              <ChequeWithdraw />
+              {/* descomentar */}
+              {/* <ChequeWithdraw /> */}
             </div>
           }
         />

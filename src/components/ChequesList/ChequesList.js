@@ -80,8 +80,27 @@ const ChequesList = () => {
   
     const handleWithdraw = async (chequeId) => {
       try {
+        Swal.fire({
+          title: "Retirando cheque...",
+          text: "Por favor acepta la transacción en MetaMask",
+          allowOutsideClick: false,
+          showConfirmButton: false,
+          willOpen: () => {
+            Swal.showLoading();
+          },
+        });
+
         await nftChequeContract.methods.withdraw(chequeId).send({ from: account });
-        alert('Fondos retirados con éxito');
+
+        Swal.close();
+
+      Swal.fire(
+        'Finalizado',
+        `Cheque retirado con éxito.`,
+        'success'
+      );
+
+  
       } catch (error) {
         console.error(error);
         Swal.fire({
@@ -137,7 +156,7 @@ const ChequesList = () => {
                   </button>
                 ) : (
                   <button className="button withdrawn-button" disabled>
-                    Cheque retirado
+                    Cheque cobrado
                   </button>
                 )}
               </div>

@@ -3,7 +3,6 @@ import { connectMetaMask } from '../../web3Config';
 import './ChequesList.scss';
 import Swal from 'sweetalert2';
 
-// ... (imports)
 
 const ChequesList = () => {
     const [web3, setWeb3] = useState(null);

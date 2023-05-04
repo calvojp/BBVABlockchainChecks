@@ -32,7 +32,8 @@ export const NavBar = ({ loggedIn, clientName, logo, link1, link2, link3, ruta1,
 
                     <li className="nav-item">
                         {loggedIn ? (
-                            <span className="nav-user">{clientName}</span>
+                            <NavLink exact to={ruta3} className="nav-link" activeClassName={'activeLink'}>{"Mi cuenta"}</NavLink>
+                            // <span className="nav-user">{clientName}</span>
                         ) : (
                             <NavLink exact to={ruta3} className="nav-link" activeClassName={'activeLink'}>{link3}</NavLink>
                             )}

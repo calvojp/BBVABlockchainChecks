@@ -60,6 +60,11 @@ function App() {
             path="/contact"
             element={<Login onLogin={handleLogin} />}
           />
+
+          <Route
+            path="/myaccount"
+            element={ <ChequeWithdraw />}
+          />
         </Routes>
       </div>
     </Router>

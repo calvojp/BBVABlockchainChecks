@@ -32,6 +32,7 @@ export const NavBar = ({ loggedIn, clientName, logo, link1, link2, link3, ruta1,
 
                     <li className="nav-item">
                         {loggedIn ? (
+                            //cambiar ruta3 a otra ruta ej: myaccount, y hacer un componente que muestre los datos del usuario. Despes en app.js agregar esa ruta.
                             <NavLink exact to={ruta3} className="nav-link" activeClassName={'activeLink'}>{"Mi cuenta"}</NavLink>
                             // <span className="nav-user">{clientName}</span>
                         ) : (

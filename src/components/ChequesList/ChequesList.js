@@ -4,7 +4,6 @@ import './ChequesList.scss';
 import Swal from 'sweetalert2';
 import ChequeCard from '../ChequeCard/ChequeCard'; // Añade esta línea
 
-// ... (imports)
 
 const ChequesList = () => {
     const [web3, setWeb3] = useState(null);

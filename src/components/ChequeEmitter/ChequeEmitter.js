@@ -52,6 +52,7 @@ const ChequeEmitter = () => {
       await erc20TokenContract.methods.approve(nftChequeContract.options.address, tokenAmount).send({ from: account });
 
       // Emitir el cheque
+      console.log("hola", nftChequeContract)
       await nftChequeContract.methods.mint(recipient, tokenAmount).send({ from: account });
 
       Swal.close();

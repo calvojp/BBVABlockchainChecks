@@ -1,40 +1,52 @@
 .ChequeEmitter {
   display: flex;
+  flex-direction: column;
   justify-content: center;
   // align-items: center;
-  // min-height: 100vh;
-  padding-top: 50px;
-}
+  padding: 80px;
+  font-family: Arial, sans-serif;
 
-.form {
-  display: flex;
-  flex-direction: column;
-  background-color: #ffffff;
-  border-radius: 5px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  max-width: 400px;
-  width: 100%;
-}
+  .MuiStepIcon-root.MuiStepIcon-active {
+    color: #004481;
+  }
 
-.input {
-  margin-bottom: 10px;
-  padding: 10px;
-  border: 1px solid #cccccc;
-  border-radius: 5px;
-}
+  .MuiStepIcon-root.MuiStepIcon-completed {
+    color: #004481;
+  }
 
-.button {
-  background-color: #0e53a7;
-  border: none;
-  color: #ffffff;
-  text-transform: uppercase;
-  font-weight: bold;
-  padding: 10px;
-  border-radius: 5px;
-  cursor: pointer;
+  .MuiButton-root {
+    width: 180px;
+    margin-top: 20px;
+    color: white;
+    background-color: #004481;
 
-  &:hover {
-    background-color: #0b4686;
+    &:hover {
+      background-color: #003865;
+    }
+  }
+
+  .MuiStepLabel-label.MuiStepLabel-active {
+    color: #004481;
+    font-weight: bold;
+  }
+
+  .MuiStepLabel-label.MuiStepLabel-completed {
+    color: #004481;
+  }
+
+  .step-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .input {
+      margin: 10px 0;
+      width: 300px;
+    }
+
+    p {
+      color: #004481;
+      margin: 10px 0;
+    }
   }
 }

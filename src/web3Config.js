@@ -1,6 +1,9 @@
-// src/web3Config.js
-import Web3 from 'web3';
+import { ethers } from 'ethers';
 import detectEthereumProvider from '@metamask/detect-provider';
+import { Web3Provider } from '@ethersproject/providers';
+import { Contract } from '@ethersproject/contracts';
+
+
 
 export const nftChequeAddress = '0x61A3CCC735593f7Ae21e405537E43503fcb6A76c';
 export const nftChequeAbi = [
@@ -1013,22 +1016,49 @@ export const erc20TokenAbi = [
 ];
 
 export const connectMetaMask = async () => {
-  const provider = await detectEthereumProvider();
+	if (typeof window.ethereum !== 'undefined') {
+	  try {
+		const provider = new Web3Provider(window.ethereum);
+		const signer = provider.getSigner();
+		const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+		const nftCheque = new Contract(nftChequeAddress, nftChequeAbi, signer);
+		const erc20Token = new Contract(erc20TokenAddress, erc20TokenAbi, signer);
 
-  if (provider) {
-    const web3Instance = new Web3(Web3.givenProvider || 'ws://localhost:8545');
-    const accounts = await provider.request({ method: 'eth_requestAccounts' });
-    const nftCheque = new web3Instance.eth.Contract(nftChequeAbi, nftChequeAddress);
-    const erc20Token = new web3Instance.eth.Contract(erc20TokenAbi, erc20TokenAddress);
-    return {
-      web3Instance,
-      account: accounts[0],
-      nftChequeContract: nftCheque,
-      erc20TokenContract: erc20Token,
-    };
-  } else {
-    alert('Por favor, instala MetaMask para continuar');
-    return { web3Instance: null, account: '', nftChequeContract: null, erc20TokenContract: null };
-  }
-};
+		return {
+		  ethersInstance: ethers,
+		  provider,
+		  signer,
+		  account: accounts[0],
+		  nftChequeContract: nftCheque,
+		  erc20TokenContract: erc20Token,
+		};
+	  } catch (error) {
+		alert('Por favor, conecta MetaMask para continuar');
+		return { ethersInstance: null, provider: null, signer: null, account: '', nftChequeContract: null, erc20TokenContract: null };
+	  }
+	} else {
+	  alert('Por favor, instala MetaMask para continuar');
+	  return { ethersInstance: null, provider: null, signer: null, account: '', nftChequeContract: null, erc20TokenContract: null };
+	}
+  };
+  
+// export const connectMetaMask = async () => {
+//   const provider = await detectEthereumProvider();
+
+//   if (provider) {
+//     const web3Instance = new Web3(Web3.givenProvider || 'ws://localhost:8545');
+//     const accounts = await provider.request({ method: 'eth_requestAccounts' });
+//     const nftCheque = new web3Instance.eth.Contract(nftChequeAbi, nftChequeAddress);
+//     const erc20Token = new web3Instance.eth.Contract(erc20TokenAbi, erc20TokenAddress);
+//     return {
+//       web3Instance,
+//       account: accounts[0],
+//       nftChequeContract: nftCheque,
+//       erc20TokenContract: erc20Token,
+//     };
+//   } else {
+//     alert('Por favor, instala MetaMask para continuar');
+//     return { web3Instance: null, account: '', nftChequeContract: null, erc20TokenContract: null };
+//   }
+// };
 

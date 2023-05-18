@@ -5,17 +5,17 @@ import Swal from 'sweetalert2';
 
 
 const ChequesList = () => {
-    const [web3, setWeb3] = useState(null);
-    const [account, setAccount] = useState('');
+    const [provider, setProvider] = useState(null);
+    const [signer, setSigner] = useState(null);
     const [nftChequeContract, setNftChequeContract] = useState(null);
     const [searchAddress, setSearchAddress] = useState('');
     const [cheques, setCheques] = useState([]);
   
     useEffect(() => {
       const init = async () => {
-        const { web3Instance, account, nftChequeContract } = await connectMetaMask();
-        setWeb3(web3Instance);
-        setAccount(account);
+        const { providerInstance, signer, nftChequeContract } = await connectMetaMask();
+        setProvider(providerInstance);
+        setSigner(signer);
         setNftChequeContract(nftChequeContract);
       };
       init();
@@ -31,35 +31,34 @@ const ChequesList = () => {
     const handleSearch = async (e) => {
       e.preventDefault();
   
-      if (!nftChequeContract || !web3) {
+      if (!nftChequeContract || !signer) {
         alert('Por favor, conecta a MetaMask primero');
         return;
       }
   
       try {
-        const chequeIds = await nftChequeContract.methods
-          .getChequesByRecipient(searchAddress)
-          .call({ from: account });
+        const accounts = await signer.provider.listAccounts();
+        const account = accounts[0];
 
-        console.log("antes del if")
-        if (chequeIds.length <= 0){
+        console.log("direccion q busco:", searchAddress);
+        const chequeIds = await nftChequeContract.getChequesByRecipient(searchAddress);
+        
+        if (chequeIds.length <= 0) {
           Swal.fire({
             icon: 'error',
             title: 'Error.',
             text: 'No se encontro ningun cheque relacionado a esa dirección',
             footer: '<a href="">Por qué tengo este problema?</a>'
-            });
-            return
-          }
+          });
+          return;
+        }
         
         const chequesData = await Promise.all(
           chequeIds.map(async (chequeId) => {
-            const amount = await nftChequeContract.methods
-              .getAmountByChequeId(chequeId)
-              .call({ from: account });
+            const amount = await nftChequeContract.getAmountByChequeId(chequeId);
   
             return {
-              id: chequeId,
+              id: chequeId.toString(),
               amount,
             };
           })
@@ -73,7 +72,7 @@ const ChequesList = () => {
             title: 'Error.',
             text: 'No se encontro ningun cheque relacionado a esa dirección',
             footer: '<a href="">Por qué tengo este problema?</a>'
-            });
+        });
       }
     };
   
@@ -89,17 +88,17 @@ const ChequesList = () => {
           },
         });
 
-        await nftChequeContract.methods.withdraw(chequeId).send({ from: account });
+        const tx = await nftChequeContract.withdraw(chequeId);
+        await tx.wait();
 
         Swal.close();
 
-      Swal.fire(
-        'Finalizado',
-        `Cheque retirado con éxito.`,
-        'success'
-      );
+        Swal.fire(
+          'Finalizado',
+          `Cheque retirado con éxito.`,
+          'success'
+        );
 
-  
       } catch (error) {
         console.error(error);
         Swal.fire({
@@ -112,7 +111,7 @@ const ChequesList = () => {
     };
 
   
-  return (
+    return (
       <div className="ChequesList">
         <form className="form" onSubmit={handleSearch}>
           <h2>Buscar cheques por dirección</h2>
@@ -151,7 +150,7 @@ const ChequesList = () => {
                     className="button withdraw-button"
                     onClick={() => handleWithdraw(cheque.id)}
                   >
-                    Retirar fondos
+                    Cobrar fondos
                   </button>
                 ) : (
                   <button className="button withdrawn-button" disabled>
@@ -164,7 +163,8 @@ const ChequesList = () => {
         </div>
       </div>
     );
-};
-  
-  export default ChequesList;
+    
+    };
+    
+    export default ChequesList;
   

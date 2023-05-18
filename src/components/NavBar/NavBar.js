@@ -1,49 +1,79 @@
-// NavBar.js
 import React, { useState } from 'react';
-import { IoMdClose, IoMdMenu } from "react-icons/io";
-import { Link, NavLink } from 'react-router-dom';
+import { IoMdClose, IoMdMenu } from 'react-icons/io';
+// import { Link, NavLink, useHistory } from 'react-router-dom';
+import { Link, NavLink} from 'react-router-dom';
 import './NavBar.scss';
-// export const NavBar = ({ logo, link1, link2, link3, ruta1, ruta2, ruta3 }) => {
-export const NavBar = ({ loggedIn, clientName, logo, link1, link2, link3, ruta1, ruta2, ruta3 }) => {
-    const [menu, setMenu] = useState(false);
 
-    const handleMenuOnClick = () => {
-        setMenu(!menu);
-    };
+export const NavBar = ({
+  loggedIn,
+  clientName,
+  logo,
+  link1,
+  link2,
+  link3,
+  ruta1,
+  ruta2,
+  ruta3,
+  onLogout,
+}) => {
+  const [menu, setMenu] = useState(false);
+  // const history = useHistory();
 
-    return (
-        <header>
-            <div className="logo">
-                <Link to="/" className="nav-link">
-                    <img className="img-fluid" src={logo} alt="logo" />
-                </Link>
-            </div>
+  const handleMenuOnClick = () => {
+    setMenu(!menu);
+  };
 
-            <nav className={menu ? "nav show" : "nav"} id="nav-menu">
-                <IoMdClose id="header-close" onClick={handleMenuOnClick} />
+  const handleLogout = () => {
+    onLogout();
+    // history.push('/');
+  };
 
-                <ul className="nav-list">
-                    <li className="nav-item">
-                        <NavLink exact to={ruta1} className="nav-link" activeClassName={'activeLink'}>{link1}</NavLink>
-                    </li>
-                    <li className="nav-item">
-                        <NavLink exact to={ruta2} className="nav-link" activeClassName={'activeLink'}>{link2}</NavLink>
-                    </li>
+  return (
+    <header>
+      <div className="logo">
+        <Link to="/" className="nav-link">
+          <img className="img-fluid" src={logo} alt="logo" />
+        </Link>
+      </div>
 
-                    <li className="nav-item">
-                        {loggedIn ? (
-                            //cambiar ruta3 a otra ruta ej: myaccount, y hacer un componente que muestre los datos del usuario. Despes en app.js agregar esa ruta.
-                            <NavLink exact to={ruta3} className="nav-link" activeClassName={'activeLink'}>{"Mi cuenta"}</NavLink>
-                            // <span className="nav-user">{clientName}</span>
-                        ) : (
-                            <NavLink exact to={ruta3} className="nav-link" activeClassName={'activeLink'}>{link3}</NavLink>
-                            )}
-                    </li>       
+      <nav className={menu ? 'nav show' : 'nav'} id="nav-menu">
+        <IoMdClose id="header-close" onClick={handleMenuOnClick} />
 
+        <ul className="nav-list">
+          <li className="nav-item">
+            <NavLink exact to={ruta1} className="nav-link" activeClassName={'activeLink'}>
+              {link1}
+            </NavLink>
+          </li>
+          <li className="nav-item">
+            <NavLink exact to={ruta2} className="nav-link" activeClassName={'activeLink'}>
+              {link2}
+            </NavLink>
+          </li>
 
-                </ul>
-            </nav>
-            <IoMdMenu id="header-toggle" onClick={handleMenuOnClick} />
-        </header>
-    );
+          {loggedIn ? (
+            <>
+              <li className="nav-item">
+                <NavLink exact to={ruta3} className="nav-link" activeClassName={'activeLink'}>
+                  Mi cuenta
+                </NavLink>
+              </li>
+              <li className="nav-item">
+                <NavLink exact to={ruta3} className="nav-link" activeClassName={'activeLink'}>
+                  Cerrar sesion
+                </NavLink>
+              </li>
+            </>
+          ) : (
+            <li className="nav-item">
+              <NavLink exact to={ruta3} className="nav-link" activeClassName={'activeLink'}>
+                {link3}
+              </NavLink>
+            </li>
+          )}
+        </ul>
+      </nav>
+      <IoMdMenu id="header-toggle" onClick={handleMenuOnClick} />
+    </header>
+  );
 };

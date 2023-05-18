@@ -1,32 +1,53 @@
 import React, { useState, useEffect } from 'react';
-import Web3 from 'web3';
-import detectEthereumProvider from '@metamask/detect-provider';
 import './ChequeEmitter.scss';
 import Swal from 'sweetalert2';
 import { nftChequeAbi, nftChequeAddress, connectMetaMask } from '../../web3Config';
+import { Contract } from '@ethersproject/contracts';
+import { Stepper, Step, StepLabel, Button, TextField } from '@mui/material';
+
+const steps = ['Emitir Cheque', 'Revisar datos', 'Confirmar'];
 
 const ChequeEmitter = () => {
-  const [web3, setWeb3] = useState(null);
+  const [activeStep, setActiveStep] = useState(0);
+  const [provider, setProvider] = useState(null);
+  const [signer, setSigner] = useState(null);
   const [account, setAccount] = useState('');
   const [nftChequeContract, setNftChequeContract] = useState(null);
-  const [erc20TokenContract, setErc20TokenContract] = useState(null); // Agregar esto
+  const [erc20TokenContract, setErc20TokenContract] = useState(null);
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
 
   useEffect(() => {
     const init = async () => {
-      const { web3Instance, account, nftChequeContract, erc20TokenContract } = await connectMetaMask();
-      setWeb3(web3Instance);
+      const { provider, signer, account, nftChequeContract, erc20TokenContract } = await connectMetaMask();
+      setProvider(provider);
+      setSigner(signer);
       setAccount(account);
       setNftChequeContract(nftChequeContract);
-      setErc20TokenContract(erc20TokenContract); // Agregar esto
+      setErc20TokenContract(erc20TokenContract);
     };
     init();
   }, []);
 
+  const handleNext = () => {
+    if (activeStep === 0 && (recipient === '' || amount === '')) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Datos incompletos.',
+        text: 'Por favor, completa todos los campos antes de avanzar.',
+      });
+    } else {
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    }
+  };
+
+  const handleBack = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep - 1);
+  };
+
   const emitCheque = async (e) => {
     e.preventDefault();
-    if (!nftChequeContract || !web3 || !erc20TokenContract) {
+    if (!nftChequeContract || !provider || !erc20TokenContract || !signer) {
       Swal.fire({
         icon: 'error',
         title: 'Error.',
@@ -46,14 +67,10 @@ const ChequeEmitter = () => {
         },
       });
 
-      // Llamar a la función 'approve' del contrato ERC20 antes de emitir el cheque
       const tokenAmount = amount * 10 ** 2;
-      //descomentar
-      await erc20TokenContract.methods.approve(nftChequeContract.options.address, tokenAmount).send({ from: account });
+      await erc20TokenContract.approve(nftChequeContract.address, tokenAmount);
 
-      // Emitir el cheque
-      console.log("hola", nftChequeContract)
-      await nftChequeContract.methods.mint(recipient, tokenAmount).send({ from: account });
+      await nftChequeContract.mint(recipient, tokenAmount);
 
       Swal.close();
 
@@ -75,35 +92,80 @@ const ChequeEmitter = () => {
     }
   };
 
-  useEffect(() => {
-    connectMetaMask();
-  }, []);
-
+  const getStepContent = (stepIndex) => {
+    switch (stepIndex) {
+      case 0:
+        return (
+          <div className="step-content">
+            <TextField 
+              className="input"
+              label="Dirección del receptor"
+              variant="outlined"
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
+            />
+            <TextField 
+              className="input"
+              label="Monto en pesos"
+              variant="outlined"
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
+            <Button className="button" variant="contained" color="primary" onClick={handleNext}>
+              Siguiente
+            </Button>
+          </div>
+        );
+      case 1:
+        return (
+          <div className="step-content">
+            <p>
+              Dirección del receptor: {recipient}
+            </p>
+            <p>
+              Monto en pesos: {amount}
+            </p>
+            <Button className="button" variant="contained" color="primary" onClick={handleBack}>
+              Atrás
+            </Button>
+            <Button className="button" variant="contained" color="primary" onClick={handleNext}>
+              Siguiente
+            </Button>
+          </div>
+        );
+      case 2:
+        return (
+          <div className="step-content">
+            <p>
+              ¿Estás seguro de que quieres emitir un cheque por AR$${amount} a la dirección {recipient}?
+            </p>
+            <Button className="button" variant="contained" color="primary" onClick={handleBack}>
+              Atrás
+            </Button>
+            <Button className="button" variant="contained" color="primary" onClick={emitCheque}>
+              Sí, emitir cheque
+            </Button>
+          </div>
+        );
+      default:
+        return 'Unknown stepIndex';
+    }
+  }
 
   return (
     <div className="ChequeEmitter">
-      <form className="form" onSubmit={emitCheque}>
-        <h2>Emitir Cheque</h2>
-        <input
-          className="input"
-          type="text"
-          placeholder="Dirección del receptor"
-          value={recipient}
-          onChange={(e) => setRecipient(e.target.value)}
-        />
-        <input
-          className="input"
-          type="number"
-          placeholder="Monto en pesos"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        />
-        <button className="button" type="submit">
-          Emitir Cheque
-        </button>
-      </form>
+      <Stepper activeStep={activeStep} alternativeLabel>
+        {steps.map((label) => (
+          <Step key={label}>
+            <StepLabel>{label}</StepLabel>
+          </Step>
+        ))}
+      </Stepper>
+      {getStepContent(activeStep)}
     </div>
   );
 };
 
 export default ChequeEmitter;
+             

@@ -1,36 +1,34 @@
 import React from 'react';
-import './Footer.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFacebookF, faTwitter } from '@fortawesome/free-brands-svg-icons';
+import { faFacebook, faTwitter, faInstagram, faLinkedin } from '@fortawesome/free-brands-svg-icons';
+import './Footer.scss';
 
-function Footer() {
-    return (
-        <div className="Footer">
-            <div className="Footer__container">
-                <div className="Footer__brand">
-                    <img
-                        src="https://www.bbva.com/wp-content/uploads/2019/04/Logo-BBVA.jpg"
-                        alt="BBVA Logo"
-                    />
-                    <p>BBVA Cheque Emitter © 2023</p>
-                </div>
-
-                <div className="Footer__links">
-                    <a href="/terms">Términos de Servicio</a>
-                    <a href="/privacy">Política de Privacidad</a>
-                </div>
-
-                <div className="Footer__social">
-                    <a href="https://www.facebook.com/BBVAWorld/">
-                        <FontAwesomeIcon icon={faFacebookF} />
-                    </a>
-                    <a href="https://twitter.com/bbva">
-                        <FontAwesomeIcon icon={faTwitter} />
-                    </a>
-                </div>
-            </div>
+const Footer = () => {
+  return (
+    <footer className="footer bg-dark text-white">
+      <div className="container">
+        <div className="row">
+          <div className="col-lg-6">
+            {/* <p className="lead">BBVA © 2023</p> */}
+          </div>
+          <div className="col-lg-6 d-flex justify-content-end">
+            <a href="https://www.bbva.com.ar/" className="social-media-link mx-2">
+              <FontAwesomeIcon icon={faFacebook} />
+            </a>
+            <a href="https://www.bbva.com.ar/" className="social-media-link mx-2">
+              <FontAwesomeIcon icon={faTwitter} />
+            </a>
+            <a href="https://www.bbva.com.ar/" className="social-media-link mx-2">
+              <FontAwesomeIcon icon={faInstagram} />
+            </a>
+            <a href="https://www.bbva.com.ar/" className="social-media-link mx-2">
+              <FontAwesomeIcon icon={faLinkedin} />
+            </a>
+          </div>
         </div>
-    );
+      </div>
+    </footer>
+  );
 }
 
 export default Footer;

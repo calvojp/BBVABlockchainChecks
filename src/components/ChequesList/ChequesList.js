@@ -28,53 +28,54 @@ const ChequesList = () => {
       };
 
 
-    const handleSearch = async (e) => {
-      e.preventDefault();
-  
-      if (!nftChequeContract || !signer) {
-        alert('Por favor, conecta a MetaMask primero');
-        return;
-      }
-  
-      try {
-        const accounts = await signer.provider.listAccounts();
-        const account = accounts[0];
-
-        console.log("direccion q busco:", searchAddress);
-        const chequeIds = await nftChequeContract.getChequesByRecipient(searchAddress);
-        
-        if (chequeIds.length <= 0) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Error.',
-            text: 'No se encontro ningun cheque relacionado a esa dirección',
-            footer: '<a href="">Por qué tengo este problema?</a>'
-          });
+      const handleSearch = async (e) => {
+        e.preventDefault();
+      
+        if (!nftChequeContract || !signer) {
+          alert('Por favor, conecta a MetaMask primero');
           return;
         }
-        
-        const chequesData = await Promise.all(
-          chequeIds.map(async (chequeId) => {
-            const amount = await nftChequeContract.getAmountByChequeId(chequeId);
-  
-            return {
-              id: chequeId.toString(),
-              amount,
-            };
-          })
-        );
-  
-        setCheques(chequesData);
-      } catch (error) {
-        console.error(error);
-        Swal.fire({
-            icon: 'error',
-            title: 'Error.',
-            text: 'No se encontro ningun cheque relacionado a esa dirección',
-            footer: '<a href="">Por qué tengo este problema?</a>'
-        });
-      }
-    };
+      
+        try {
+          const accounts = await signer.provider.listAccounts();
+          const account = accounts[0];
+      
+          // Se busca los cheques en la cuenta conectada
+          const chequeIds = await nftChequeContract.getChequesByRecipient(account);
+          
+          if (chequeIds.length <= 0) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error.',
+              text: 'No se encontro ningun cheque relacionado a esa dirección',
+              footer: '<a href="">Por qué tengo este problema?</a>'
+            });
+            return;
+          }
+          
+          const chequesData = await Promise.all(
+            chequeIds.map(async (chequeId) => {
+              const amount = await nftChequeContract.getAmountByChequeId(chequeId);
+      
+              return {
+                id: chequeId.toString(),
+                amount,
+              };
+            })
+          );
+      
+          setCheques(chequesData);
+        } catch (error) {
+          console.error(error);
+          Swal.fire({
+              icon: 'error',
+              title: 'Error.',
+              text: 'No se encontro ningun cheque relacionado a esa dirección',
+              footer: '<a href="">Por qué tengo este problema?</a>'
+          });
+        }
+      };  
+
   
     const handleWithdraw = async (chequeId) => {
       try {
@@ -114,21 +115,21 @@ const ChequesList = () => {
     return (
       <div className="ChequesList">
         <form className="form" onSubmit={handleSearch}>
-          <h2>Buscar cheques por dirección</h2>
-          <input
+          <h2>Mis cheques</h2>
+          {/* <input
             className="input"
             type="text"
             placeholder="Dirección de búsqueda"
             value={searchAddress}
             onChange={(e) => setSearchAddress(e.target.value)}
-          />
+          /> */}
           <div className="form-buttons">
             <button className="button" type="submit">
-              Buscar cheques
+              Consultar
             </button>
-            <button className="button reset-button" type="button" onClick={handleReset}>
+            {/* <button className="button reset-button" type="button" onClick={handleReset}>
               Reiniciar
-            </button>
+            </button> */}
           </div>
         </form>
         <div className="cheque-cards">
@@ -168,3 +169,52 @@ const ChequesList = () => {
     
     export default ChequesList;
   
+
+
+    // const handleSearch = async (e) => {
+    //   e.preventDefault();
+  
+    //   if (!nftChequeContract || !signer) {
+    //     alert('Por favor, conecta a MetaMask primero');
+    //     return;
+    //   }
+  
+    //   try {
+    //     const accounts = await signer.provider.listAccounts();
+    //     const account = accounts[0];
+
+    //     console.log("direccion q busco:", searchAddress);
+    //     const chequeIds = await nftChequeContract.getChequesByRecipient(searchAddress);
+        
+    //     if (chequeIds.length <= 0) {
+    //       Swal.fire({
+    //         icon: 'error',
+    //         title: 'Error.',
+    //         text: 'No se encontro ningun cheque relacionado a esa dirección',
+    //         footer: '<a href="">Por qué tengo este problema?</a>'
+    //       });
+    //       return;
+    //     }
+        
+    //     const chequesData = await Promise.all(
+    //       chequeIds.map(async (chequeId) => {
+    //         const amount = await nftChequeContract.getAmountByChequeId(chequeId);
+  
+    //         return {
+    //           id: chequeId.toString(),
+    //           amount,
+    //         };
+    //       })
+    //     );
+  
+    //     setCheques(chequesData);
+    //   } catch (error) {
+    //     console.error(error);
+    //     Swal.fire({
+    //         icon: 'error',
+    //         title: 'Error.',
+    //         text: 'No se encontro ningun cheque relacionado a esa dirección',
+    //         footer: '<a href="">Por qué tengo este problema?</a>'
+    //     });
+    //   }
+    // };

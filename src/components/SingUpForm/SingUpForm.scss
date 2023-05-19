@@ -1,0 +1,16 @@
+.signUpForm {
+    .submitButton {
+      background-color: #0033A1;
+      color: white;
+      margin-top: 20px;
+  
+      &:hover {
+        background-color: darken(#0033A1, 10%);
+      }
+    }
+    
+    .closeButton {
+      color: #0033A1;
+    }
+  }
+  

@@ -121,10 +121,10 @@ const ChequeEmitter = () => {
         return (
           <div className="step-content">
             <p>
-              Dirección del receptor: {recipient}
+              Receptor: {recipient}
             </p>
             <p>
-              Monto en pesos: {amount}
+              Monto: ${amount}
             </p>
             <Button className="button" variant="contained" color="primary" onClick={handleBack}>
               Atrás
@@ -136,10 +136,9 @@ const ChequeEmitter = () => {
         );
       case 2:
         return (
-          <div className="step-content">
-            <p>
-              ¿Estás seguro de que quieres emitir un cheque por AR$${amount} a la dirección {recipient}?
-            </p>
+          <div className="step-content">      
+            <p>¿Estás seguro de que quieres emitir un cheque por AR${amount}?</p>               
+            <p>Receptor: {recipient}</p>            
             <Button className="button" variant="contained" color="primary" onClick={handleBack}>
               Atrás
             </Button>

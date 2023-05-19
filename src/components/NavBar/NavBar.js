@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { IoMdClose, IoMdMenu } from 'react-icons/io';
-// import { Link, NavLink, useHistory } from 'react-router-dom';
-import { Link, NavLink} from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import './NavBar.scss';
 
 export const NavBar = ({
@@ -17,15 +16,16 @@ export const NavBar = ({
   onLogout,
 }) => {
   const [menu, setMenu] = useState(false);
-  // const history = useHistory();
+  const navigate = useNavigate(); // usa useNavigate en lugar de useHistory
 
   const handleMenuOnClick = () => {
     setMenu(!menu);
   };
 
-  const handleLogout = () => {
+  const handleLogoutClick = () => {
     onLogout();
-    // history.push('/');
+    setMenu(false);
+    navigate('/contact'); // redirige a la página de inicio de sesión después de cerrar la sesión
   };
 
   return (
@@ -45,23 +45,23 @@ export const NavBar = ({
               {link1}
             </NavLink>
           </li>
-          <li className="nav-item">
-            <NavLink exact to={ruta2} className="nav-link" activeClassName={'activeLink'}>
-              {link2}
-            </NavLink>
-          </li>
 
           {loggedIn ? (
             <>
               <li className="nav-item">
-                <NavLink exact to={ruta3} className="nav-link" activeClassName={'activeLink'}>
-                  Mi cuenta
+                <NavLink exact to={"/micuenta"} className="nav-link" activeClassName={'activeLink'}>
+                  Mis cheques
                 </NavLink>
               </li>
               <li className="nav-item">
-                <NavLink exact to={ruta3} className="nav-link" activeClassName={'activeLink'}>
-                  Cerrar sesion
-                </NavLink>
+                <NavLink exact to={ruta2} className="nav-link" activeClassName={'activeLink'}>
+                {link2}
+              </NavLink>
+              </li>
+              <li className="nav-item">
+                <div onClick={handleLogoutClick} className="nav-link">
+                  Cerrar sesión
+                </div>
               </li>
             </>
           ) : (
@@ -77,3 +77,4 @@ export const NavBar = ({
     </header>
   );
 };
+

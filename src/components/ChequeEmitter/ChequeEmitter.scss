@@ -2,9 +2,10 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  // align-items: center;
+  align-items: center;
   padding: 80px;
   font-family: Arial, sans-serif;
+  height: 70vh;
 
   .MuiStepIcon-root.MuiStepIcon-active {
     color: #004481;

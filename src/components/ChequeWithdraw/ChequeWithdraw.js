@@ -60,7 +60,7 @@ const ChequeWithdraw = () => {
   return (
     <div className="ChequeWithdraw">
       <form className="form" onSubmit={verifyAndWithdraw}>
-        <h2>Retirar Cheque</h2>
+        <h2>Mi cuenta</h2>
         <input
           className="input"
           type="number"

@@ -1,7 +1,9 @@
 import { ethers } from 'ethers';
 import detectEthereumProvider from '@metamask/detect-provider';
+import { JsonRpcProvider } from '@ethersproject/providers';
 import { Web3Provider } from '@ethersproject/providers';
 import { Contract } from '@ethersproject/contracts';
+import { Wallet } from '@ethersproject/wallet';
 
 
 
@@ -1041,24 +1043,24 @@ export const connectMetaMask = async () => {
 	  return { ethersInstance: null, provider: null, signer: null, account: '', nftChequeContract: null, erc20TokenContract: null };
 	}
   };
-  
-// export const connectMetaMask = async () => {
-//   const provider = await detectEthereumProvider();
 
-//   if (provider) {
-//     const web3Instance = new Web3(Web3.givenProvider || 'ws://localhost:8545');
-//     const accounts = await provider.request({ method: 'eth_requestAccounts' });
-//     const nftCheque = new web3Instance.eth.Contract(nftChequeAbi, nftChequeAddress);
-//     const erc20Token = new web3Instance.eth.Contract(erc20TokenAbi, erc20TokenAddress);
-//     return {
-//       web3Instance,
-//       account: accounts[0],
-//       nftChequeContract: nftCheque,
-//       erc20TokenContract: erc20Token,
-//     };
-//   } else {
-//     alert('Por favor, instala MetaMask para continuar');
-//     return { web3Instance: null, account: '', nftChequeContract: null, erc20TokenContract: null };
-//   }
-// };
 
+export const decryptWallet = async (encryptedJson, password) => {
+    try {
+        const wallet = await Wallet.fromEncryptedJson(encryptedJson, password);
+        return wallet;
+    } catch (error) {
+        console.log('Error al desencriptar el monedero:', error);
+        return null;
+    }
+};
+
+export const connectWalletToProvider = (wallet, providerUrl) => {
+    const provider = new JsonRpcProvider(providerUrl);
+    const signer = wallet.connect(provider);
+    return signer;
+};
+
+export const getContract = (address, abi, signer) => {
+    return new Contract(address, abi, signer);
+};

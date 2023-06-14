@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import './ChequeEmitter.scss';
 import Swal from 'sweetalert2';
-import { nftChequeAbi, nftChequeAddress, connectMetaMask } from '../../web3Config';
+import { nftChequeAbi, nftChequeAddress, erc20TokenAddress, erc20TokenAbi,  connectMetaMask, decryptWallet, connectWalletToProvider, getContract} from '../../web3Config';
 import { Contract } from '@ethersproject/contracts';
 import { Stepper, Step, StepLabel, Button, TextField } from '@mui/material';
+import { ethers } from 'ethers';
+
+
 
 const steps = ['Emitir Cheque', 'Revisar datos', 'Confirmar'];
 
@@ -19,7 +22,7 @@ const ChequeEmitter = () => {
 
   useEffect(() => {
     const init = async () => {
-      const { provider, signer, account, nftChequeContract, erc20TokenContract } = await connectMetaMask();
+      // const { provider, signer, account, nftChequeContract, erc20TokenContract } = await connectMetaMask();
       setProvider(provider);
       setSigner(signer);
       setAccount(account);
@@ -45,52 +48,80 @@ const ChequeEmitter = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
-  const emitCheque = async (e) => {
+
+const encryptedJson = "{\"address\":\"629461dbe54adc844d373d5ea2e5546548d827a3\",\"id\":\"53bd07c2-03d7-462e-ba0b-0f81da23203b\",\"version\":3,\"Crypto\":{\"cipher\":\"aes-128-ctr\",\"cipherparams\":{\"iv\":\"f528ffc34ba720e4320d2fc8e228acc1\"},\"ciphertext\":\"882f53274c5522ba9942588bf55efa50efca3b3f3efac439f2ca0e17e701be50\",\"kdf\":\"scrypt\",\"kdfparams\":{\"salt\":\"d0d399ac3605ef89d4f407de67766be3f0053eb3160a94d53d4453e5e4c8ed22\",\"n\":131072,\"dklen\":32,\"p\":1,\"r\":8},\"mac\":\"5a4e49be725aa7b3b507fb5486642b25fbe7809e5b57022b843c9586d479b8cf\"},\"x-ethers\":{\"client\":\"ethers/6.3.0\",\"gethFilename\":\"UTC--2023-05-19T04-24-37.0Z--629461dbe54adc844d373d5ea2e5546548d827a3\",\"path\":\"m/44'/60'/0'/0/0\",\"locale\":\"en\",\"mnemonicCounter\":\"69b115cb12cfb0689da4f21e5676981e\",\"mnemonicCiphertext\":\"c1de85666bbf189b73a03c160009a5b6\",\"version\":\"0.1\"}}"
+
+
+const emitCheque = async (e) => {
     e.preventDefault();
-    if (!nftChequeContract || !provider || !erc20TokenContract || !signer) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error.',
-        text: 'Recuerda conectarte a METAMASK antes.',
-        footer: '<a href="">Por qué tengo este problema?</a>'
-      })
-      return;
-    }
     try {
-      Swal.fire({
-        title: "Emitiendo cheque...",
-        text: "Por favor acepta la transacción en MetaMask",
-        allowOutsideClick: false,
-        showConfirmButton: false,
-        willOpen: () => {
-          Swal.showLoading();
-        },
-      });
+        const { value: password } = await Swal.fire({
+            title: 'Ingresa tu contraseña para confirmar la transacción',
+            input: 'password',
+            inputPlaceholder: 'Contraseña',
+            inputAttributes: {
+              autocapitalize: 'off',
+              autocorrect: 'off'
+            }
+        });
 
-      const tokenAmount = amount * 10 ** 2;
-      await erc20TokenContract.approve(nftChequeContract.address, tokenAmount);
+        if (!password) {
+            Swal.fire('Necesitas proporcionar una contraseña para continuar!');
+            return;
+        }
 
-      await nftChequeContract.mint(recipient, tokenAmount);
+        Swal.fire({
+            title: "Emitiendo cheque...",
+            text: "Por favor espera",
+            allowOutsideClick: false,
+            showConfirmButton: false,
+            willOpen: () => {
+                Swal.showLoading();
+            },
+        });
 
-      Swal.close();
+        const wallet = await decryptWallet(encryptedJson, password);
+        if (!wallet) {
+            throw new Error("Error al desencriptar el monedero");
+        }
 
-      Swal.fire(
-        'Finalizado',
-        `Cheque por AR$${amount} emitido con éxito.`,
-        'success'
-      );
-      console.log("Se emitio el cheque con exito, destinatario: ", recipient)
+        console.log("esta es la wallet", wallet)
+
+        const signer = connectWalletToProvider(wallet, 'https://api.avax-test.network/ext/bc/C/rpc'); // Recuerda usar tu proveedor actual
+        const nftChequeContract = getContract(nftChequeAddress, nftChequeAbi, signer);
+        const erc20TokenContract = getContract(erc20TokenAddress, erc20TokenAbi, signer);
+        
+
+
+        console.log("contrato nft funcion: ", nftChequeContract)
+        console.log("contrato erc20: ", erc20TokenContract)
+
+        const tokenAmount = amount * 10 ** 2
+        await erc20TokenContract.approve(nftChequeContract.address, tokenAmount);
+        await nftChequeContract.mint(recipient, tokenAmount);
+
+        Swal.close();
+        Swal.fire(
+            'Finalizado',
+            `Cheque por AR$${amount} emitido con éxito.`,
+            'success'
+        );
+
+        setActiveStep(0);
+        setRecipient('');
+        setAmount('');
+
     } catch (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Error en emisión del cheque.',
-        text: 'Algo salió mal',
-        footer: '<a href="">Por qué tengo este problema?</a>'
-      })
+        Swal.fire({
+            icon: 'error',
+            title: 'Error en emisión del cheque.',
+            text: 'Algo salió mal',
+            footer: '<a href="">Por qué tengo este problema?</a>'
+        });
 
-      console.log(error)
+        console.log(error)
     }
-  };
+};
 
   const getStepContent = (stepIndex) => {
     switch (stepIndex) {
@@ -168,3 +199,50 @@ const ChequeEmitter = () => {
 
 export default ChequeEmitter;
              
+
+  // const emitCheque = async (e) => {
+  //   e.preventDefault();
+  //   if (!nftChequeContract || !provider || !erc20TokenContract || !signer) {
+  //     Swal.fire({
+  //       icon: 'error',
+  //       title: 'Error.',
+  //       text: 'Recuerda conectarte a METAMASK antes.',
+  //       footer: '<a href="">Por qué tengo este problema?</a>'
+  //     })
+  //     return;
+  //   }
+  //   try {
+  //     Swal.fire({
+  //       title: "Emitiendo cheque...",
+  //       text: "Por favor acepta la transacción en MetaMask",
+  //       allowOutsideClick: false,
+  //       showConfirmButton: false,
+  //       willOpen: () => {
+  //         Swal.showLoading();
+  //       },
+  //     });
+
+  //     const tokenAmount = amount * 10 ** 2;
+  //     await erc20TokenContract.approve(nftChequeContract.address, tokenAmount);
+
+  //     await nftChequeContract.mint(recipient, tokenAmount);
+
+  //     Swal.close();
+
+  //     Swal.fire(
+  //       'Finalizado',
+  //       `Cheque por AR$${amount} emitido con éxito.`,
+  //       'success'
+  //     );
+  //     console.log("Se emitio el cheque con exito, destinatario: ", recipient)
+  //   } catch (error) {
+  //     Swal.fire({
+  //       icon: 'error',
+  //       title: 'Error en emisión del cheque.',
+  //       text: 'Algo salió mal',
+  //       footer: '<a href="">Por qué tengo este problema?</a>'
+  //     })
+
+  //     console.log(error)
+  //   }
+  // };

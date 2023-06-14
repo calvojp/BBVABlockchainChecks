@@ -11,7 +11,7 @@ contract NFTCheque is ERC721, Ownable {
 
     enum ChequeType { Simple, Certified, Deferred }
 
-    struct ChequeIn/fo {
+    struct ChequeInfo {
         address payable recipient;
         uint256 amount;
         address issuer;

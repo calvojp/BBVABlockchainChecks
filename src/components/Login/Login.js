@@ -117,7 +117,7 @@ const handleLogout = async () => {
             Crear cuenta
           </Button>
           {/* <Typography>{welcomeMessage}</Typography> */}
-          <SignUpForm open={signUpOpen} onClose={handleCloseSignUp} />
+          <SignUpForm open={signUpOpen} onClose={handleCloseSignUp} closeForm={handleCloseSignUp}/>
           </>
         )}
       </Paper>

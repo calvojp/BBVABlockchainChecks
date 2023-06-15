@@ -6,7 +6,6 @@ import { Contract } from '@ethersproject/contracts';
 import { Wallet } from '@ethersproject/wallet';
 
 
-
 export const nftChequeAddress = '0x61A3CCC735593f7Ae21e405537E43503fcb6A76c';
 export const nftChequeAbi = [
 	{
@@ -1056,8 +1055,12 @@ export const decryptWallet = async (encryptedJson, password) => {
 };
 
 export const connectWalletToProvider = (wallet, providerUrl) => {
+	console.log("wallet en cfg", wallet)
     const provider = new JsonRpcProvider(providerUrl);
+	console.log("provider en cfg", provider)
     const signer = wallet.connect(provider);
+	console.log("signer en cfg", signer)
+
     return signer;
 };
 

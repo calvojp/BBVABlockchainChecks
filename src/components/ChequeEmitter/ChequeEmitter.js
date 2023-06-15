@@ -86,8 +86,10 @@ const emitCheque = async (e) => {
         }
 
         console.log("esta es la wallet", wallet)
+        
 
-        const signer = connectWalletToProvider(wallet, 'https://api.avax-test.network/ext/bc/C/rpc'); // Recuerda usar tu proveedor actual
+
+        const signer = connectWalletToProvider(wallet, 'https://api.avax-test.network/ext/bc/C/rpc'); 
         const nftChequeContract = getContract(nftChequeAddress, nftChequeAbi, signer);
         const erc20TokenContract = getContract(erc20TokenAddress, erc20TokenAbi, signer);
         
@@ -199,50 +201,3 @@ const emitCheque = async (e) => {
 
 export default ChequeEmitter;
              
-
-  // const emitCheque = async (e) => {
-  //   e.preventDefault();
-  //   if (!nftChequeContract || !provider || !erc20TokenContract || !signer) {
-  //     Swal.fire({
-  //       icon: 'error',
-  //       title: 'Error.',
-  //       text: 'Recuerda conectarte a METAMASK antes.',
-  //       footer: '<a href="">Por qué tengo este problema?</a>'
-  //     })
-  //     return;
-  //   }
-  //   try {
-  //     Swal.fire({
-  //       title: "Emitiendo cheque...",
-  //       text: "Por favor acepta la transacción en MetaMask",
-  //       allowOutsideClick: false,
-  //       showConfirmButton: false,
-  //       willOpen: () => {
-  //         Swal.showLoading();
-  //       },
-  //     });
-
-  //     const tokenAmount = amount * 10 ** 2;
-  //     await erc20TokenContract.approve(nftChequeContract.address, tokenAmount);
-
-  //     await nftChequeContract.mint(recipient, tokenAmount);
-
-  //     Swal.close();
-
-  //     Swal.fire(
-  //       'Finalizado',
-  //       `Cheque por AR$${amount} emitido con éxito.`,
-  //       'success'
-  //     );
-  //     console.log("Se emitio el cheque con exito, destinatario: ", recipient)
-  //   } catch (error) {
-  //     Swal.fire({
-  //       icon: 'error',
-  //       title: 'Error en emisión del cheque.',
-  //       text: 'Algo salió mal',
-  //       footer: '<a href="">Por qué tengo este problema?</a>'
-  //     })
-
-  //     console.log(error)
-  //   }
-  // };

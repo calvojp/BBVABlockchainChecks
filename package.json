@@ -21,7 +21,7 @@
     "@testing-library/user-event": "^13.5.0",
     "autoprefixer": "^10.4.14",
     "axios": "^1.4.0",
-    "bootstrap": "^5.2.3",
+    "bootstrap": "^5.3.0",
     "ethers": "^6.3.0",
     "fortmatic": "^2.4.0",
     "js-cookie": "^3.0.5",

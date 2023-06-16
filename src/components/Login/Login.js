@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Button, TextField, Grid, Typography, Paper } from '@mui/material';
 import { LockOutlined } from '@mui/icons-material';
 import SignUpForm from '../SingUpForm/SingUpForm';
+import Swal from 'sweetalert2';
 import './Login.scss';
 
 
@@ -16,7 +17,7 @@ function Login({ onLogin }) {
   const handleLogin = async (event) => {
     event.preventDefault();
     try {
-      const response = await axios.post("http://127.0.0.1:5000/login", {
+      const response = await axios.post("http://RamiroPeidro.pythonanywhere.com/login", {
         username,
         password,
       }, { withCredentials: true });;
@@ -26,18 +27,30 @@ function Login({ onLogin }) {
         setWelcomeMessage(response.data.message);
         
           try {
-            const clientsResponse = await axios.get("http://127.0.0.1:5000/clientes", 
+            const clientsResponse = await axios.get("http://RamiroPeidro.pythonanywhere.com/clientes", 
             {withCredentials: true} );
             if (clientsResponse.data && clientsResponse.data.length > 0) {
               onLogin(true, clientsResponse.data[0]["NOMBRE"]); 
             } else {
               onLogin(true, "");
+              Swal.fire({
+                icon: 'error',
+                title: 'Credenciales incorrectas',
+                text: 'Vuelve a intentar',
+                footer: '<a href="">Por qué tengo este problema?</a>'
+            });
             }
           } catch (error) {
             console.error("Error al obtener el nombre del cliente:", error);
             onLogin(true, "");
           }
         } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Credenciales incorrectas',
+            text: 'Vuelve a intentar',
+            footer: '<a href="">Por qué tengo este problema?</a>'
+        });
           setLoggedIn(false);
           setWelcomeMessage(response.data.message);
           onLogin(false, "");
@@ -52,7 +65,7 @@ function Login({ onLogin }) {
 
 const handleLogout = async () => {
   try {
-    const response = await axios.post('http://localhost:5000/logout', {}, {
+    const response = await axios.post('http://RamiroPeidro.pythonanywhere.com/logout', {}, {
       withCredentials: true
     });
 

@@ -28,8 +28,8 @@ function App() {
     // Aquí añade tu código para hacer la petición al servidor y cerrar la sesión
     // ...
     // Y finalmente establece el estado a no logeado
-    setLoggedIn(false);
-    setClientName("");
+    setLoggedIn(true);
+    setClientName("Inti");
   };
 
   return (
@@ -53,7 +53,7 @@ function App() {
             element={
               <div>
                 <NFTCheque />
-                {/* <ChequesList /> */}
+                <ChequesList /> 
               </div>
             }
           />

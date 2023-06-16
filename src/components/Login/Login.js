@@ -29,6 +29,7 @@ function Login({ onLogin }) {
           try {
             const clientsResponse = await axios.get("http://RamiroPeidro.pythonanywhere.com/clientes", 
             {withCredentials: true} );
+            console.log("data", clientsResponse.data)
             if (clientsResponse.data && clientsResponse.data.length > 0) {
               onLogin(true, clientsResponse.data[0]["NOMBRE"]); 
             } else {

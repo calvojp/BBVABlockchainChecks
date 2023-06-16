@@ -1047,6 +1047,7 @@ export const connectMetaMask = async () => {
 export const decryptWallet = async (encryptedJson, password) => {
     try {
         const wallet = await Wallet.fromEncryptedJson(encryptedJson, password);
+		console.log("esta es la wallet desencriptada", wallet)
         return wallet;
     } catch (error) {
         console.log('Error al desencriptar el monedero:', error);

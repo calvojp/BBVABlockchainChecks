@@ -54,6 +54,7 @@ const encryptedJson = "{\"address\":\"629461dbe54adc844d373d5ea2e5546548d827a3\"
 
 const emitCheque = async (e) => {
     e.preventDefault();
+    console.log(new Date().toString());
     try {
         const { value: password } = await Swal.fire({
             title: 'Ingresa tu contraseña para confirmar la transacción',
@@ -80,27 +81,27 @@ const emitCheque = async (e) => {
             },
         });
 
+        console.log(new Date().toString(), "antes del decrypt");
         const wallet = await decryptWallet(encryptedJson, password);
         if (!wallet) {
             throw new Error("Error al desencriptar el monedero");
         }
-
-        console.log("esta es la wallet", wallet)
-        
-
-
+        console.log(new Date().toString(), "despies del decrypt");
+  
         const signer = connectWalletToProvider(wallet, 'https://api.avax-test.network/ext/bc/C/rpc'); 
         const nftChequeContract = getContract(nftChequeAddress, nftChequeAbi, signer);
         const erc20TokenContract = getContract(erc20TokenAddress, erc20TokenAbi, signer);
         
-
-
-        console.log("contrato nft funcion: ", nftChequeContract)
-        console.log("contrato erc20: ", erc20TokenContract)
-
         const tokenAmount = amount * 10 ** 2
+        console.log(new Date().toString(), "antes del approve");
         await erc20TokenContract.approve(nftChequeContract.address, tokenAmount);
+        console.log(new Date().toString(), "despues del approve");
+        console.log(new Date().toString(), "antes del mint");
         await nftChequeContract.mint(recipient, tokenAmount);
+        console.log(new Date().toString(), "despues del approve");
+
+
+        console.log(new Date().toString());
 
         Swal.close();
         Swal.fire(

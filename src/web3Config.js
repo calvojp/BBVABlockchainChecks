@@ -1055,11 +1055,8 @@ export const decryptWallet = async (encryptedJson, password) => {
 };
 
 export const connectWalletToProvider = (wallet, providerUrl) => {
-	console.log("wallet en cfg", wallet)
     const provider = new JsonRpcProvider(providerUrl);
-	console.log("provider en cfg", provider)
     const signer = wallet.connect(provider);
-	console.log("signer en cfg", signer)
 
     return signer;
 };

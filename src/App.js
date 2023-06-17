@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import AboutUs from './components/AboutUs/AboutUs.js';
 import ChequeEmitter from './components/ChequeEmitter/ChequeEmitter.js';
@@ -19,18 +19,45 @@ function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [clientName, setClientName] = useState("");
 
+
+  useEffect(() => {
+    // Intenta obtener 'loggedIn' del almacenamiento local
+    const savedLoggedIn = JSON.parse(localStorage.getItem('loggedIn'));
+
+    // Si 'loggedIn' estaba en el almacenamiento local, actualiza el estado
+    if (savedLoggedIn) {
+        setLoggedIn(true);
+    }
+}, []);
+
+
   const handleLogin = (loggedIn, clientName) => {
     setLoggedIn(loggedIn);
     setClientName(clientName);
   };
 
   const handleLogout = async () => {
-    // Aquí añade tu código para hacer la petición al servidor y cerrar la sesión
-    // ...
-    // Y finalmente establece el estado a no logeado
-    setLoggedIn(false);
-    setClientName("");
+    try {
+      console.log("estoy entrando al logout de appjs")
+      const response = await axios.post('https://ramiropeidro.pythonanywhere.com/logout', {}, {
+        withCredentials: true
+      });
+  
+      if (response.data.status === "success") {
+        setLoggedIn(false);
+        setClientName("");
+        // También asegúrate de eliminar 'loggedIn' del almacenamiento local cuando el usuario cierre sesión
+        localStorage.removeItem('loggedIn');
+      } else {
+        console.error("Error al cerrar la sesión:", response.data.message);
+      }
+    } catch (error) {
+      console.error("Error al enviar la petición al servidor:", error);
+    }
   };
+  
+
+  
 
   return (
     <Router>

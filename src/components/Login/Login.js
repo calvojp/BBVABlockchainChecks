@@ -25,13 +25,13 @@ function Login({ onLogin }) {
       if (response.data.status === "success") {
         setLoggedIn(true);
         setWelcomeMessage(response.data.message);
-        
+        localStorage.setItem('loggedIn', true);
+
           try {
             const clientsResponse = await axios.get("http://RamiroPeidro.pythonanywhere.com/clientes", 
             {withCredentials: true} );
-            console.log("data", clientsResponse.data)
             if (clientsResponse.data && clientsResponse.data.length > 0) {
-              onLogin(true, clientsResponse.data[0]["NOMBRE"]); 
+              onLogin(true, clientsResponse.data[0].NOMBRE); 
             } else {
               onLogin(true, "");
               Swal.fire({
@@ -66,6 +66,7 @@ function Login({ onLogin }) {
 
 const handleLogout = async () => {
   try {
+    console.log("estoy entrando a este logout")
     const response = await axios.post('http://RamiroPeidro.pythonanywhere.com/logout', {}, {
       withCredentials: true
     });
@@ -73,6 +74,8 @@ const handleLogout = async () => {
     if (response.data.status === "success") {
       setLoggedIn(false);
       onLogin(false, "");
+      setLoggedIn(false);
+      localStorage.removeItem('loggedIn');
     } else {
       console.error("Error al cerrar la sesión:", response.data.message);
     }

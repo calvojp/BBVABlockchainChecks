@@ -122,6 +122,7 @@ const emitCheque = async (e) => {
         
         const tokenAmount = amount * 10 ** 2
         await erc20TokenContract.approve(nftChequeContract.address, tokenAmount);
+        console.log("recipent", recipient)
         await nftChequeContract.mint(recipient, tokenAmount);
 
 

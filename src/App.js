@@ -38,6 +38,13 @@ function App() {
   };
 
   const handleLogout = async () => {
+<<<<<<< HEAD
+    // Aquí añade tu código para hacer la petición al servidor y cerrar la sesión
+    // ...
+    // Y finalmente establece el estado a no logeado
+    setLoggedIn(true);
+    setClientName("Inti");
+=======
     try {
       console.log("estoy entrando al logout de appjs")
       const response = await axios.post('https://ramiropeidro.pythonanywhere.com/logout', {}, {
@@ -55,6 +62,7 @@ function App() {
     } catch (error) {
       console.error("Error al enviar la petición al servidor:", error);
     }
+>>>>>>> cba9a9d544d9e04eeae1a2cab854efc5021cfa38
   };
   
 
@@ -80,10 +88,15 @@ function App() {
             path="/"
             element={
               <div>
+<<<<<<< HEAD
                 <Playground />  
                 {/* <ChequesIndex/> */}
                 {/* descomentar */}
                 {/* <ChequeWithdraw /> */}
+=======
+                <NFTCheque />
+                <ChequesList /> 
+>>>>>>> 77f4b77c465a03ebec8ea9cdd59dc4f159f9513f
               </div>
             }
           />

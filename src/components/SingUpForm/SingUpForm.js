@@ -55,9 +55,7 @@ function SignUpForm({ open, onClose, closeForm }) {
   });
 
     const wallet = Wallet.createRandom();
-
     formValues.address = wallet.address;
-
     const encryptedWallet = await wallet.encrypt(formValues.password);
     formValues.encryptedMnemonic = encryptedWallet;
 
@@ -69,23 +67,32 @@ function SignUpForm({ open, onClose, closeForm }) {
       const signer = connectWalletToProvider(existingWallet, providerUrl);
       const amountToSend = parseEther("0.1");
 
-      console.log("antes de mandar avax")
-      await signer.sendTransaction({
-        to: wallet.address,
-        value: amountToSend
-      });
-      console.log("despues de mandar avax")
 
-      const walletDecrypted = await decryptWallet(encryptedWallet, formValues.password);
+      const sendAvax = await signer.sendTransaction({
+                          to: wallet.address,
+                          value: amountToSend
+                       });   
+      
 
-      if (!walletDecrypted) {
-          throw new Error("Error al desencriptar el monedero");
-      }
+      await sendAvax.wait(1)                 
 
-      const newSigner = connectWalletToProvider(walletDecrypted, providerUrl); 
+      // const walletDecrypted = await decryptWallet(encryptedWallet, formValues.password);
+
+      // if (!walletDecrypted) {
+      //     throw new Error("Error al desencriptar el monedero");
+      // }
+
+      console.log(wallet, "la wallet")
+      const newSigner = connectWalletToProvider(wallet, providerUrl); 
+
       const erc20TokenContract = getContract(erc20TokenAddress, erc20TokenAbi, newSigner);
 
+      console.log("despues de erc20contract")
+
+      
       await erc20TokenContract.approve(nftChequeAddress, MaxUint256);
+
+      console.log("despues de approve")
       const response = await axios.post('http://RamiroPeidro.pythonanywhere.com/signup', formValues);
 
       if (response.data.status === "success") {

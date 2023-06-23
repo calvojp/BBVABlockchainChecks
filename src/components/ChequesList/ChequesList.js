@@ -1,25 +1,52 @@
 import React, { useState, useEffect } from 'react';
-import { connectMetaMask } from '../../web3Config';
+import { nftChequeAbi, nftChequeAddress, erc20TokenAddress, erc20TokenAbi,  connectMetaMask, decryptWallet, connectWalletToProvider, getContract} from '../../web3Config';
 import './ChequesList.scss';
 import Swal from 'sweetalert2';
+<<<<<<< HEAD
 import  ChequeCard  from '../ChequeCard/ChequeCard';
+=======
+import axios from 'axios';
+import { JsonRpcProvider } from '@ethersproject/providers';
+>>>>>>> cba9a9d544d9e04eeae1a2cab854efc5021cfa38
 
 
 const ChequesList = () => {
     const [provider, setProvider] = useState(null);
     const [signer, setSigner] = useState(null);
-    const [nftChequeContract, setNftChequeContract] = useState(null);
     const [searchAddress, setSearchAddress] = useState('');
+    const [nftChequeContract, setNftChequeContract] = useState(null);
+    const [erc20TokenContract, setErc20TokenContract] = useState(null);
     const [cheques, setCheques] = useState([]);
+    const [sessionData, setSessionData] = useState(null);
+    const [account, setAccount] = useState('');
   
     useEffect(() => {
+
       const init = async () => {
-        const { providerInstance, signer, nftChequeContract } = await connectMetaMask();
-        setProvider(providerInstance);
+        // const { provider, signer, account, nftChequeContract, erc20TokenContract } = await connectMetaMask();
+        setProvider(provider);
         setSigner(signer);
+        setAccount(account);
         setNftChequeContract(nftChequeContract);
+        setErc20TokenContract(erc20TokenContract);
       };
+
+
+      const getSessionData = async () => {
+        try {
+          const response = await axios.get("http://RamiroPeidro.pythonanywhere.com/session_data", { withCredentials: true });
+          setSessionData(response.data);
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error obteniendo datos de la sesion',
+            text: 'Por favor, intenta iniciar sesión de nuevo.',
+          });
+        }
+      };
+
       init();
+      getSessionData();
     }, []);
   
 
@@ -32,23 +59,29 @@ const ChequesList = () => {
       const handleSearch = async (e) => {
         e.preventDefault();
       
-        if (!nftChequeContract || !signer) {
-          alert('Por favor, conecta a MetaMask primero');
+        if (!sessionData) {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error en búsqueda.',
+            text: 'Los datos de la sesión no están disponibles. Intenta iniciar sesión de nuevo.',
+          });
           return;
         }
-      
+        const account = sessionData.address;
+
         try {
-          const accounts = await signer.provider.listAccounts();
-          const account = accounts[0];
-      
-          // Se busca los cheques en la cuenta conectada
+          const provider = new JsonRpcProvider('https://api.avax-test.network/ext/bc/C/rpc');
+          const nftChequeContract = getContract(nftChequeAddress, nftChequeAbi, provider) 
           const chequeIds = await nftChequeContract.getChequesByRecipient(account);
           
+          console.log(chequeIds)
+          
           if (chequeIds.length <= 0) {
+
             Swal.fire({
               icon: 'error',
-              title: 'Error.',
-              text: 'No se encontro ningun cheque relacionado a esa dirección',
+              title: 'Nada por aquí.',
+              text: 'No hay cheques a tu nombre.',
               footer: '<a href="">Por qué tengo este problema?</a>'
             });
             return;
@@ -117,6 +150,7 @@ const ChequesList = () => {
       <div className="ChequesList">
         <form className="form" onSubmit={handleSearch}>
           <h2>Mis cheques</h2>
+
           {/* <input
             className="input"
             type="text"
@@ -124,6 +158,7 @@ const ChequesList = () => {
             value={searchAddress}
             onChange={(e) => setSearchAddress(e.target.value)}
           /> */}
+
           <div className="form-buttons">
             <button className="button" type="submit">
               Consultar
@@ -176,52 +211,3 @@ const ChequesList = () => {
     
     export default ChequesList;
   
-
-
-    // const handleSearch = async (e) => {
-    //   e.preventDefault();
-  
-    //   if (!nftChequeContract || !signer) {
-    //     alert('Por favor, conecta a MetaMask primero');
-    //     return;
-    //   }
-  
-    //   try {
-    //     const accounts = await signer.provider.listAccounts();
-    //     const account = accounts[0];
-
-    //     console.log("direccion q busco:", searchAddress);
-    //     const chequeIds = await nftChequeContract.getChequesByRecipient(searchAddress);
-        
-    //     if (chequeIds.length <= 0) {
-    //       Swal.fire({
-    //         icon: 'error',
-    //         title: 'Error.',
-    //         text: 'No se encontro ningun cheque relacionado a esa dirección',
-    //         footer: '<a href="">Por qué tengo este problema?</a>'
-    //       });
-    //       return;
-    //     }
-        
-    //     const chequesData = await Promise.all(
-    //       chequeIds.map(async (chequeId) => {
-    //         const amount = await nftChequeContract.getAmountByChequeId(chequeId);
-  
-    //         return {
-    //           id: chequeId.toString(),
-    //           amount,
-    //         };
-    //       })
-    //     );
-  
-    //     setCheques(chequesData);
-    //   } catch (error) {
-    //     console.error(error);
-    //     Swal.fire({
-    //         icon: 'error',
-    //         title: 'Error.',
-    //         text: 'No se encontro ningun cheque relacionado a esa dirección',
-    //         footer: '<a href="">Por qué tengo este problema?</a>'
-    //     });
-    //   }
-    // };

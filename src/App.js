@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import AboutUs from './components/AboutUs/AboutUs.js';
@@ -12,6 +11,8 @@ import Footer from './components/Footer/Footer';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios';
 import './components/NFTCheque/NFTCheque.scss';
+import { Playground } from './components/storybook/Playground.tsx';
+// import ChequesIndex from './components/storybook/Playground.js';
 
 axios.defaults.withCredentials = true;
 
@@ -65,7 +66,7 @@ function App() {
         <NavBar
           loggedIn={loggedIn}
           clientName={clientName}
-          logo="https://www.bbva.com/wp-content/uploads/2019/04/Logo-BBVA.jpg"
+          logo="https://www.bbva.com.ar/content/dam/public-web/global/images/logos/logo_bbva_blanco.svg"
           // link1="Cheques"
           link2="Emitir"
           link3="Iniciar sesión"
@@ -79,8 +80,10 @@ function App() {
             path="/"
             element={
               <div>
-                <NFTCheque />
-                {/* <ChequesList /> */}
+                <Playground />  
+                {/* <ChequesIndex/> */}
+                {/* descomentar */}
+                {/* <ChequeWithdraw /> */}
               </div>
             }
           />
@@ -108,12 +111,13 @@ function App() {
               <div>
                 {/* <ChequeWithdraw /> */}
                 <ChequesList />
+                {/* <ChequesIndex /> */}
               </div>
             }
             
           />
         </Routes>
-        <Footer /> 
+        {/* <Footer />  */}
       </div>
     </Router>
   );

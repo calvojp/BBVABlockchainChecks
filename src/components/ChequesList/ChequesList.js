@@ -2,12 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { nftChequeAbi, nftChequeAddress, erc20TokenAddress, erc20TokenAbi,  connectMetaMask, decryptWallet, connectWalletToProvider, getContract} from '../../web3Config';
 import './ChequesList.scss';
 import Swal from 'sweetalert2';
-<<<<<<< HEAD
-import  ChequeCard  from '../ChequeCard/ChequeCard';
-=======
+
 import axios from 'axios';
 import { JsonRpcProvider } from '@ethersproject/providers';
->>>>>>> cba9a9d544d9e04eeae1a2cab854efc5021cfa38
 
 
 const ChequesList = () => {
@@ -170,38 +167,33 @@ const ChequesList = () => {
         </form>
         <div className="cheque-cards">
           {cheques.map((cheque) => (
-            <ChequeCard
-              key={cheque.id}
-              chequeId={cheque.id}
-              amount={cheque.amount}
-              handleWithdraw={handleWithdraw}
-            />
-            // <div key={cheque.id} className="cheque-card">
-            //   <div className="cheque-header">
-            //     <h3>Cheque</h3>
-            //     <h4>ID: {cheque.id}</h4>
-            //   </div>
-            //   <div className="cheque-body">
-            //     <p>
-            //       {/* Importe: <span>{web3.utils.fromWei(cheque.amount, 'ether')} AR$</span> */}
-            //       AR$ <span>{cheque.amount / (10 ** 2)}</span>
-            //     </p>
-            //   </div>
-            //   <div className="cheque-footer">
-            //     {cheque.amount > 0 ? (
-            //       <button
-            //         className="button withdraw-button"
-            //         onClick={() => handleWithdraw(cheque.id)}
-            //       >
-            //         Cobrar fondos
-            //       </button>
-            //     ) : (
-            //       <button className="button withdrawn-button" disabled>
-            //         Cheque cobrado
-            //       </button>
-            //     )}
-            //   </div>
-            // </div>
+            
+            <div key={cheque.id} className="cheque-card">
+              <div className="cheque-header">
+                <h3>Cheque</h3>
+                <h4>ID: {cheque.id}</h4>
+              </div>
+              <div className="cheque-body">
+                <p>
+                  {/* Importe: <span>{web3.utils.fromWei(cheque.amount, 'ether')} AR$</span> */}
+                  AR$ <span>{cheque.amount / (10 ** 2)}</span>
+                </p>
+              </div>
+              <div className="cheque-footer">
+                {cheque.amount > 0 ? (
+                  <button
+                    className="button withdraw-button"
+                    onClick={() => handleWithdraw(cheque.id)}
+                  >
+                    Cobrar fondos
+                  </button>
+                ) : (
+                  <button className="button withdrawn-button" disabled>
+                    Cheque cobrado
+                  </button>
+                )}
+              </div>
+            </div>
           ))}
         </div>
       </div>

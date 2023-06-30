@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./libraries/ArrayUtils.sol"; 
 
-contract NFTCheque is ERC721, Ownable {
+contract NFTCheque is ERC721 {
     using ArrayUtils_uint256 for uint256[];
 
     uint256 private _totalCheques;
@@ -15,15 +15,16 @@ contract NFTCheque is ERC721, Ownable {
     uint32 public timeToWithdrawGeneral = 30 days;
     uint32 public timeToWithdrawCertified = 5 days;
     uint32 public timeToRemedy = 1 days;
+    uint256 public maxAmount;
 
     enum ChequeType {Simple, Certified, Deferred}
     enum ChequeState { /*Estados aptos para cobro*/
                         EMITTED //Emitido || Se creó el cheque
                         ,ACCEPTED //Aceptado || Se aceptó el cheque
                         ,DUE //Cheque en DUE || Primer rechazo del cheque (Da tiempo a normalizar)
-                        ,CANCELLED //Cancelado || Se cancela el cheque. SI ES CERTIFICADO EL EMISOR PUEDE RECUPERAR EL DINERO
-
+                        
                         /*Estados FINALES*/
+                        ,CANCELLED //Cancelado || Se cancela el cheque. SI ES CERTIFICADO EL EMISOR PUEDE RECUPERAR EL DINERO
                         ,CASHED //Cobrado || Se cobró el cheque
                         ,RETRIEVED //Recuperado (CERTIFICADOS) || Se recuperó el dinero de certificación
                         ,REJECTED //Rechazado || Se rechazó el cheque
@@ -47,17 +48,17 @@ contract NFTCheque is ERC721, Ownable {
     mapping(address => uint256[]) public activeChequesByIssuer;
     mapping(address => uint256[]) public activeChequesByRecipient;
     mapping(address => uint256[]) public rejectedChequesByRecipient;
-    mapping(address => uint256[]) private potentialCheques;
-    mapping(uint256 => uint32) private dueDate;
+    mapping(uint256 => uint32) public dueDate;
+    mapping(address => uint256) public totalDebt;
 
     //PARA TRANSFERENCIA DE CHEQUES
     mapping(uint256 => address) private potentialOwner;
+    mapping(address => uint256[]) public potentialCheques;
 
     //PARA CHEQUES DIVIDIDOS
     mapping(uint256 => uint256) private childToParent;
-    mapping(uint256 => uint256[]) private parentToChildren;
-    mapping(uint256 => uint256) private availableChequeValue;
-
+    mapping(uint256 => uint256[]) public parentToChildren;
+    mapping(uint256 => uint256) public availableChequeValue;
 
     event Minted(uint256 indexed chequeId, address indexed to, uint256 amount);
     event Offered(uint256 indexed chequeId, address indexed to);
@@ -70,34 +71,77 @@ contract NFTCheque is ERC721, Ownable {
     event Rejected(uint256 indexed chequeId);
     event Remedied(uint256 indexed chequeId);
 
+    error Unauthorized();
+    error OnlyEmittedOrAccepted();
+    error OnlyEmitted();
+    error OnlyNonCertified();
+    error OnlyIssuer();
+    error Expired();
+    error InactiveCheque();
+    error RecipientInvalid();
+    error InvalidAmount();
+    error IncompatibleCheque();
+    error CertifiedCannotDefer();
+    error ChequeNotReady();
+    error SplittedNotAllowed();
+    error UseOfferInstead();
+    error ExceedsLimit();
+    error ArgExceedsLimit(uint256 arg, uint256 limit);
+    
     constructor(address _pesosArgentinosToken) ERC721("Crypto Cheques", "cCheq") {
         pesosArgentinosToken = IERC20(_pesosArgentinosToken);
     }
 
     modifier onlyChequeHolder(uint256 _chequeId) {
-        require(ownerOf(_chequeId) == msg.sender, "Solo el titular del cheque puede realizar esta accion.");
+        if(ownerOf(_chequeId) != msg.sender) revert Unauthorized();
         _;
     }
 
     modifier onlyValidCheque(uint256 _chequeId) {
-        require(chequeRepo[_chequeId].state == ChequeState.EMITTED || chequeRepo[_chequeId].state == ChequeState.ACCEPTED, "El cheque ya fue cobrado");
-        require(chequeRepo[_chequeId].dateFrom + (chequeRepo[_chequeId].isCertified ? timeToWithdrawCertified: timeToWithdrawGeneral) > block.timestamp, "Cheque vencido");
+        _onlyValidCheque(_chequeId);
         _;
     }
 
     modifier validateChequeHeader(address _recipient, uint256 _amount){
-        require(_recipient != address(0), "El destinatario no puede ser la direccion cero.");
-        require(_recipient != msg.sender, "El destinatario no puede ser el emisor del cheque.");
-        require(_amount > 0, "La cantidad debe ser mayor que 0.");
+        _validateChequeHeader(_recipient, _amount);
         _;
+    }
+
+    function transferFrom(
+        address /*from*/,
+        address /*to*/,
+        uint256 /*tokenId*/
+    ) public virtual override {
+        revert UseOfferInstead();
+    }
+
+    function safeTransferFrom(
+        address /*from*/,
+        address /*to*/,
+        uint256 /*tokenId*/
+    ) public virtual override {
+        revert UseOfferInstead();
+    }
+
+    function safeTransferFrom(
+        address /*from*/,
+        address /*to*/,
+        uint256 /*tokenId*/,
+        bytes memory /*data*/
+    ) public virtual override {
+        revert UseOfferInstead();
     }
 
     function mint(address _recipient, uint256 _amount, uint32 _deferralSeconds, bool _isCertified)
         public validateChequeHeader(_recipient, _amount) {
         if(_isCertified){
-            require(_deferralSeconds == 0, "Los cheques certificados no pueden ser diferidos");
+            if(_deferralSeconds > 0) {
+                revert CertifiedCannotDefer();
+            }
         } else {
-            require(_deferralSeconds <= maxTimeDeferred, "El tiempo diferido es superior al maximo");
+            if(_deferralSeconds > maxTimeDeferred){
+                revert ArgExceedsLimit(uint256(_deferralSeconds), uint256(maxTimeDeferred));
+            }
         }
         uint256 chequeId = _totalCheques + 1;
         _totalCheques = chequeId;
@@ -120,12 +164,14 @@ contract NFTCheque is ERC721, Ownable {
 
     function accept(uint256 _chequeId) public {
         if(msg.sender == ownerOf(_chequeId)){
-            require(chequeRepo[_chequeId].state == ChequeState.EMITTED, "Cheque ya aceptado o invalido");
+            if(chequeRepo[_chequeId].state != ChequeState.EMITTED){
+                revert OnlyEmitted();
+            }
             _acceptEmitted(_chequeId);
         } else if (msg.sender == potentialOwner[_chequeId]) {
             _acceptTransfer(_chequeId);
         } else {
-            revert("No posee permisos sobre el cheque");
+            revert Unauthorized();
         }
         _mapAcceptedCheque(_chequeId, msg.sender);
         emit Accepted(_chequeId, msg.sender);
@@ -133,20 +179,30 @@ contract NFTCheque is ERC721, Ownable {
 
     function cancel(uint256 _chequeId) public onlyValidCheque(_chequeId) {
         if(chequeRepo[_chequeId].state == ChequeState.EMITTED){
-            require(msg.sender == chequeRepo[_chequeId].issuer || msg.sender == ownerOf(_chequeId), "No posee permisos sobre el cheque");
-            chequeRepo[_chequeId].state = ChequeState.CANCELLED;
+            if(msg.sender != chequeRepo[_chequeId].issuer && msg.sender != ownerOf(_chequeId)){
+                revert Unauthorized();
+            }
+
         } else if (chequeRepo[_chequeId].state == ChequeState.ACCEPTED){
-            require(msg.sender == ownerOf(_chequeId), "No posee permisos sobre el cheque");
-            chequeRepo[_chequeId].state = ChequeState.CANCELLED;
+            if(msg.sender != ownerOf(_chequeId)){
+                revert Unauthorized();
+            }
+
         } else {
-            revert("No se puede cancelar el cheque");
+            revert IncompatibleCheque();
+
         }
+        _cancel(_chequeId);
     }
 
     function splitCheque(uint256 _parentId, uint256 _amount, address _recipient) public onlyChequeHolder(_parentId) onlyValidCheque(_parentId) validateChequeHeader(_recipient, _amount){
         ChequeInfo memory parentCheque = chequeRepo[_parentId];
-        require(!parentCheque.isCertified, "No se puede dividir un cheque certificado");
-        require(availableChequeValue[_parentId] >= _amount, "Saldo insuficiente");
+        if(parentCheque.isCertified){
+            revert OnlyNonCertified();
+        }
+        if(availableChequeValue[_parentId] < _amount){
+            revert InvalidAmount();
+        }
 
         uint256 childId = _parameterizedMint(msg.sender, _recipient, _amount, parentCheque.dateFrom, false);
 
@@ -156,21 +212,26 @@ contract NFTCheque is ERC721, Ownable {
 
     }
 
-    /*function transfer(address to, uint256 _chequeId) public onlyChequeHolder(_chequeId) {
-        safeTransferFrom(msg.sender, to, _chequeId);
-    }*/
-
     function offer(address _to, uint256 _chequeId) public onlyChequeHolder(_chequeId) onlyValidCheque(_chequeId){
-        require(parentToChildren[_chequeId].length == 0, "No se puede ofrecer un cheque dividido");
+        if(parentToChildren[_chequeId].length > 0){
+            revert SplittedNotAllowed();
+        }
+        if(potentialOwner[_chequeId] != address(0)){
+            potentialCheques[potentialOwner[_chequeId]].removeValue(_chequeId);
+        }
         potentialOwner[_chequeId] = _to;
         potentialCheques[_to].push(_chequeId);
+        
     }
 
     function withdraw(uint256 _chequeId) public onlyChequeHolder(_chequeId) onlyValidCheque(_chequeId) {
-        require(chequeRepo[_chequeId].dateFrom <= block.timestamp, "No se ha iniciado el periodo de cobro del cheque");
+
+        if(chequeRepo[_chequeId].dateFrom > block.timestamp){
+            revert ChequeNotReady();
+        }
         
         if(chequeRepo[_chequeId].isCertified){
-            _certifiedWithdraw(_chequeId);
+            _simpleWithdraw(_chequeId, address(this));
         } else {
             if(pesosArgentinosToken.allowance(chequeRepo[_chequeId].issuer, address(this)) < chequeRepo[_chequeId].amount
             || pesosArgentinosToken.balanceOf(chequeRepo[_chequeId].issuer) < chequeRepo[_chequeId].amount) {
@@ -179,37 +240,41 @@ contract NFTCheque is ERC721, Ownable {
                 emit Due(_chequeId);
                 return;
             }   
-            _splitWithdraw(_chequeId);
+            _splitWithdraw(_chequeId, chequeRepo[_chequeId].issuer);
         }
-
-        /*if(parentToChildren[_chequeId].length > 0){
-            _splitWithdraw(_chequeId);
-        } else if (chequeRepo[_chequeId].isCertified) {
-            _certifiedWithdraw(_chequeId);
-        } else {
-            _simpleWithdraw(_chequeId);
-        }*/
     }
 
     function reject(uint256 _chequeId) public onlyChequeHolder(_chequeId) {
-        require(chequeRepo[_chequeId].state == ChequeState.DUE && dueDate[_chequeId] + timeToRemedy< block.timestamp, "Aun no se puede rechazar el cheque");
+        if(!(chequeRepo[_chequeId].state == ChequeState.DUE && dueDate[_chequeId] + timeToRemedy < block.timestamp)){
+            revert ChequeNotReady();
+        }
         _reject(_chequeId);
     }
 
     function remedy(uint256 _chequeId) public {
-        require(chequeRepo[_chequeId].state == ChequeState.DUE, "El cheque no esta en deuda");
+        if(msg.sender != chequeRepo[_chequeId].issuer){
+            revert OnlyIssuer();
+        }
+        if(chequeRepo[_chequeId].state != ChequeState.DUE){
+            revert IncompatibleCheque();
+        }
         if(dueDate[_chequeId] + timeToRemedy < block.timestamp) {
             _reject(_chequeId);
         } else {
-            _splitWithdraw(_chequeId);
+            _splitWithdraw(_chequeId, msg.sender);
             emit Remedied(_chequeId);
         }
     }
 
     function retrieve(uint256 _chequeId) public {
         ChequeInfo storage cheque = chequeRepo[_chequeId];
-        require(cheque.isCertified && cheque.issuer == msg.sender, "No posee fondos a recuperar");
-        require(cheque.state == ChequeState.EMITTED || cheque.state == ChequeState.CANCELLED || cheque.dateFrom + timeToWithdrawCertified < block.timestamp, "Cheque no apto para recuperar fondos");
+        if(cheque.issuer != msg.sender){
+            revert Unauthorized();
+        }
+        if(!cheque.isCertified 
+            || !(cheque.state == ChequeState.EMITTED || cheque.state == ChequeState.CANCELLED || cheque.dateFrom + timeToWithdrawCertified < block.timestamp)){
+            revert IncompatibleCheque();
+        }
         cheque.state = ChequeState.RETRIEVED;
         
         pesosArgentinosToken.transferFrom(address(this), cheque.issuer, cheque.amount);
@@ -226,51 +291,18 @@ contract NFTCheque is ERC721, Ownable {
             );
     }
 
-    function getChequesByRecipient(address _recipient) public view returns (uint256[] memory) {
-        return chequesByRecipient[_recipient];
-    }
-
-    function getActiveChequesByRecipient(address _recipient) public view returns (uint256[] memory){
-        return activeChequesByRecipient[_recipient];
-    }
-
-    function getRecipientByChequeId(uint256 _chequeId) public view returns (address) {
-        return ownerOf(_chequeId);
-    }
-
-    function getAmountByChequeId(uint256 _chequeId) public view returns (uint256) {
-        return chequeRepo[_chequeId].amount;
-    }
-
-    function getChequesByIssuer(address _issuer) public view returns (uint256[] memory) {
-        return chequesByIssuer[_issuer];
-    }
-
-    function getActiveChequesByIssuer(address _issuer) public view returns (uint256[] memory) {
-        return activeChequesByIssuer[_issuer];
-    }
-
-    function getIssuerByChequeId(uint256 _chequeId) public view returns (address) {
-        return chequeRepo[_chequeId].issuer;
-    }
-
-    function getChildCheques(uint256 _chequeId) public view returns (uint256[] memory) {
-        return parentToChildren[_chequeId];
-    }
-
-    function _simpleWithdraw(uint256 _chequeId) internal {
+    function _simpleWithdraw(uint256 _chequeId, address from) internal {
         uint256 amount = chequeRepo[_chequeId].amount;
         chequeRepo[_chequeId].state = ChequeState.CASHED;
 
-        address issuer = chequeRepo[_chequeId].issuer;
-        pesosArgentinosToken.transferFrom(issuer, ownerOf(_chequeId), amount);
+        pesosArgentinosToken.transferFrom(from, ownerOf(_chequeId), amount);
         _mapCashedCheque(_chequeId);
 
         emit Cashed(_chequeId, ownerOf(_chequeId), amount);
         _burn(_chequeId);
     }
 
-    function _certifiedWithdraw(uint256 _chequeId) internal {
+    /*function _certifiedWithdraw(uint256 _chequeId) internal {
         uint256 amount = chequeRepo[_chequeId].amount;
         chequeRepo[_chequeId].state = ChequeState.CASHED;
 
@@ -279,20 +311,19 @@ contract NFTCheque is ERC721, Ownable {
 
         emit Cashed(_chequeId, ownerOf(_chequeId), amount);
         _burn(_chequeId);
-    }
+    }*/
 
-    function _splitWithdraw(uint256 _chequeId) internal {
+    function _splitWithdraw(uint256 _chequeId, address _from) internal {
         ChequeInfo storage cheque = chequeRepo[_chequeId];
-        uint256 amount = cheque.amount;
         uint256[] memory children = parentToChildren[_chequeId];
 
-        _simpleWithdraw(_chequeId);
+        _simpleWithdraw(_chequeId, _from);
         for(uint i = 0; i < children.length; i++){
             ChequeState _state = chequeRepo[children[i]].state;
-            if(_state == ChequeState.EMITTED || _state == ChequeState.ACCEPTED) _simpleWithdraw(children[i]);
+            if(_state == ChequeState.EMITTED || _state == ChequeState.ACCEPTED) _simpleWithdraw(children[i], chequeRepo[children[i]].issuer);
         }
 
-        emit Cashed(_chequeId, ownerOf(_chequeId), amount);
+        emit Cashed(_chequeId, ownerOf(_chequeId), cheque.amount);
     }
 
     function _reject(uint256 _chequeId) internal {
@@ -323,6 +354,7 @@ contract NFTCheque is ERC721, Ownable {
                                 ,_isCertified
                                 );
         availableChequeValue[chequeId] = _amount;
+        totalDebt[_issuer] += _amount;
 
         return chequeId;
     }
@@ -335,20 +367,14 @@ contract NFTCheque is ERC721, Ownable {
         if(chequeRepo[_chequeId].state == ChequeState.EMITTED){
             chequeRepo[_chequeId].state = ChequeState.ACCEPTED;   
         }
-        safeTransferFrom(ownerOf(_chequeId), potentialOwner[_chequeId], _chequeId);
+        _safeTransfer(ownerOf(_chequeId), potentialOwner[_chequeId], _chequeId,"");
     }
-
-    /*function _mapNewCheque(uint256 _chequeId, address _issuer, address _recipient) internal virtual {
-        chequesByRecipient[_recipient].push(_chequeId);
-        chequesByIssuer[_issuer].push(_chequeId);
-        activeChequesByRecipient[_recipient].push(_chequeId);
-        activeChequesByIssuer[_issuer].push(_chequeId);
-    }*/
 
     function _mapIssuedCheque(uint256 _chequeId, address _issuer, address _to) internal virtual {
         chequesByIssuer[_issuer].push(_chequeId);
         activeChequesByIssuer[_issuer].push(_chequeId);
         potentialCheques[_to].push(_chequeId);
+        totalDebt[_issuer] += chequeRepo[_chequeId].amount;
     }
 
     function _mapAcceptedCheque(uint256 _chequeId, address _recipient) internal virtual {
@@ -364,12 +390,72 @@ contract NFTCheque is ERC721, Ownable {
     }
 
     function _mapCashedCheque(uint256 _chequeId) internal virtual{
-        address recipient = ownerOf(_chequeId);
         address issuer = chequeRepo[_chequeId].issuer;
-        require(activeChequesByRecipient[recipient].removeValue(_chequeId),"El cheque no se encuentra activo");
-        require(activeChequesByIssuer[issuer].removeValue(_chequeId),"El cheque no se encuentra activo");
+        
+        if(!activeChequesByIssuer[issuer].removeValue(_chequeId)){
+            revert InactiveCheque();
+        }
+
+        //Se elimina la relación activa con el receptor actual
+        if(chequeRepo[_chequeId].state == ChequeState.EMITTED){
+            potentialCheques[ownerOf(_chequeId)].removeValue(_chequeId);
+        } else {
+            activeChequesByRecipient[ownerOf(_chequeId)].removeValue(_chequeId);
+        }
+
+        //Si hay un dueño potencial del cheque distinto del dueño actual, se elimina la relación
+        if(potentialOwner[_chequeId] != ownerOf(_chequeId)){
+            potentialCheques[potentialOwner[_chequeId]].removeValue(_chequeId);
+        }
+
+        totalDebt[issuer] -= chequeRepo[_chequeId].amount;
+    }
+
+    function _cancel(uint256 _chequeId) internal virtual {
+        ChequeInfo storage cheque = chequeRepo[_chequeId];
+
+        //Si el cheque es certificado, se devuelve la guita. Sino, se refleja estado cancelado
+        if(cheque.isCertified){
+            pesosArgentinosToken.transferFrom(address(this), cheque.issuer, cheque.amount);
+            cheque.state = ChequeState.RETRIEVED;
+            emit Retrieved(_chequeId, cheque.issuer, cheque.amount);
+        } else {
+            cheque.state = ChequeState.CANCELLED;
+        }
+        
+        _removeChildren(childToParent[_chequeId], _chequeId);
+        _mapCashedCheque(_chequeId);
+        _burn(_chequeId);
+    }
+
+    function _removeChildren(uint256 _parentId, uint256 _childId) internal{
+        if(parentToChildren[_parentId].removeValue(_childId)){
+            availableChequeValue[_parentId] += chequeRepo[_childId].amount;
+            totalDebt[chequeRepo[_parentId].issuer] += chequeRepo[_childId].amount;
+        }
+        
+    }
+
+    function _onlyValidCheque(uint256 _chequeId) private view {
+        if(chequeRepo[_chequeId].state == ChequeState.EMITTED || chequeRepo[_chequeId].state == ChequeState.ACCEPTED){
+            revert OnlyEmittedOrAccepted();
+        }
+        if(chequeRepo[_chequeId].dateFrom + (chequeRepo[_chequeId].isCertified ? timeToWithdrawCertified: timeToWithdrawGeneral) > block.timestamp){
+            revert Expired();
+        }
+    }
+
+    function _validateChequeHeader(address _recipient, uint256 _amount) private view {
+        if(!(_recipient != address(0) && _recipient != msg.sender)){
+            revert RecipientInvalid();
+        }
+        if(_amount == 0){
+            revert InvalidAmount();
+        }
+        if(_amount > maxAmount - totalDebt[msg.sender]){
+            revert ExceedsLimit();
+        }
+        
     }
 
 }
-
-

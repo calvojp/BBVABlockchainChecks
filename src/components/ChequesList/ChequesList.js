@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { nftChequeAbi, nftChequeAddress, erc20TokenAddress, erc20TokenAbi,  connectMetaMask, decryptWallet, connectWalletToProvider, getContract} from '../../web3Config';
 import './ChequesList.scss';
 import Swal from 'sweetalert2';
-
 import axios from 'axios';
 import { JsonRpcProvider } from '@ethersproject/providers';
 

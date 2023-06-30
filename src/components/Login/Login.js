@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Button, TextField, Grid, Typography, Paper } from '@mui/material';
+import { Button, TextField, Grid, Typography, Paper, Container } from '@mui/material';
 import { LockOutlined } from '@mui/icons-material';
 import SignUpForm from '../SingUpForm/SingUpForm';
 import Swal from 'sweetalert2';
@@ -96,53 +96,59 @@ const handleLogout = async () => {
   };
 
   return (
-    <Grid container className="loginContainer" justifyContent="center">
-      <Grid item xs={12} sm={8} md={6} lg={4}>
-        <Paper className="loginPaper" elevation={5}>
-          <Typography variant="h4" className="loginTitle">
-            Iniciar sesión
-          </Typography>
-          <LockOutlined className="loginIcon" />
-          <form onSubmit={handleLogin}>
-            <TextField
-              fullWidth
-              label="Nombre de usuario"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              margin="normal"
-            />
-            <TextField
-              fullWidth
-              type="password"
-              label="Contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              margin="normal"
-            />
-            <Button variant="contained" color="primary" type="submit" className="submitBtn">
+    <Container maxWidth="md" className="loginContainer">
+      <Paper className="loginPaper" elevation={5}>
+        <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <Typography variant="h4" className="loginTitle">
               Iniciar sesión
-            </Button>
-          </form>
-          {loggedIn ? (
-            <>
-            <Typography>{welcomeMessage}</Typography>
-            <Button onClick={handleLogout} variant="text" className="logoutBtn">
-              Cerrar sesión
-            </Button>
-          </>
-        ) : (
-          <>
-          <Button onClick={handleOpenSignUp} variant="text" className="createAccBtn">
-            Crear cuenta
-          </Button>
-          {/* <Typography>{welcomeMessage}</Typography> */}
-          <SignUpForm open={signUpOpen} onClose={handleCloseSignUp} closeForm={handleCloseSignUp}/>
-          </>
-        )}
+            </Typography>
+            {/* <LockOutlined className="loginIcon" /> */}
+          </Grid>
+          <Grid item xs={12}>
+            <form onSubmit={handleLogin}>
+              <TextField
+                fullWidth
+                label="Nombre de usuario"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                margin="normal"
+              />
+              <TextField
+                fullWidth
+                type="password"
+                label="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                margin="normal"
+              />
+              <Button variant="outlined" type="submit" className="submitBtn">
+                Iniciar sesión
+              </Button>
+            </form>
+          </Grid>
+          <Grid item xs={12}>
+            {loggedIn ? (
+              <>
+                <Typography>{welcomeMessage}</Typography>
+                <Button onClick={handleLogout} variant="text" className="logoutBtn">
+                  Cerrar sesión
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button onClick={handleOpenSignUp} variant="outlined" className="createAccBtn">
+                  Crear cuenta
+                </Button>
+                <SignUpForm open={signUpOpen} onClose={handleCloseSignUp} closeForm={handleCloseSignUp}/>
+              </>
+            )}
+          </Grid>
+        </Grid>
       </Paper>
-    </Grid>
-  </Grid>
-);
+      <div className="segundo"></div>
+    </Container>
+  );
 }
 
 export default Login;

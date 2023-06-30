@@ -1,6 +1,6 @@
 import React from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu, menuClasses, MenuItemStyles} from 'react-pro-sidebar';
-import { Switch } from './components/Switch.tsx';
+import { Switchs } from './components/Switchs.tsx';
 import { SidebarHeader } from './components/SidebarHeader.tsx';
 import { Diamond } from './icons/Diamond.tsx';
 import { BarChart } from './icons/BarChart.tsx';
@@ -14,6 +14,12 @@ import { SidebarFooter } from './components/SidebarFooter.tsx';
 import { Badge } from './components/Badge.tsx';
 import { Typography } from './components/Typography.tsx';
 import { PackageBadges } from './components/PackageBadges.tsx';
+import ChequesList from '../ChequesList/ChequesList';
+import ChequeEmitter from '../ChequeEmitter/ChequeEmitter';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import Alert from '@mui/material/Alert';
+
+
 
 type Theme = 'light' | 'dark';
 
@@ -69,7 +75,7 @@ export const Playground: React.FC = () => {
   const [broken, setBroken] = React.useState(false);
   const [rtl, setRtl] = React.useState(false);
   const [hasImage, setHasImage] = React.useState(false);
-  const [theme, setTheme] = React.useState<Theme>('light');
+  const [theme, setTheme] = React.useState<Theme>('dark');
 
   // handle on RTL change event
   const handleRTLChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -135,6 +141,7 @@ export const Playground: React.FC = () => {
           color: themes[theme].sidebar.color,
         }}
       >
+
         <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
           <SidebarHeader rtl={rtl} style={{ marginBottom: '24px', marginTop: '16px' }} />
           <div style={{ flex: 1, marginBottom: '32px' }}>
@@ -159,7 +166,9 @@ export const Playground: React.FC = () => {
                   </Badge>
                 }
               >
-                <MenuItem> Activos</MenuItem>
+                <MenuItem>
+                    <Link to="/list" style={{ textDecoration: 'none', color: 'inherit' }}>Activos</Link>
+                 </MenuItem>
                 <MenuItem> Diferidos</MenuItem>
                 <MenuItem> Vencidos</MenuItem>
               </SubMenu>
@@ -170,11 +179,14 @@ export const Playground: React.FC = () => {
                 <MenuItem> Vencidos</MenuItem>
               </SubMenu>
               <SubMenu label="Emitir" icon={<Calendar />}>
-                <MenuItem> Dark</MenuItem>
-                <MenuItem> Light</MenuItem>
+                <MenuItem>
+                  <Link to="/emitir" style={{ textDecoration: 'none', color: 'inherit' }}>Convencional</Link>
+                </MenuItem>
+                <MenuItem> Diferidos</MenuItem>
+                <MenuItem>Certificados</MenuItem>
               </SubMenu>
               <SubMenu label="Transferir" icon={<Calendar />}>
-                <MenuItem> Grid</MenuItem>
+                <MenuItem component={<Link to="/services" />}> Grid</MenuItem>
                 <MenuItem> Layout</MenuItem>
                 <SubMenu label="Forms">
                   <MenuItem> Input</MenuItem>
@@ -185,7 +197,7 @@ export const Playground: React.FC = () => {
                   </SubMenu>
                 </SubMenu>
               </SubMenu>
-              <SubMenu label="Cobrar fondos" icon={<Calendar />}>
+              <SubMenu label="Cancelar" icon={<Calendar />}>
                 <MenuItem> Product</MenuItem>
                 <MenuItem> Orders</MenuItem>
                 <MenuItem> Credit card</MenuItem>
@@ -214,14 +226,14 @@ export const Playground: React.FC = () => {
 
             <div style={{ padding: '7px 24px', marginTop: '20px' }}>
               <div style={{ marginBottom: 16 }}>
-                <Switch
+                <Switchs
                   id="collapse"
                   checked={!collapsed}
                   onChange={() => setCollapsed(!collapsed)}
                />
               </div>
               <div style={{ marginBottom: 16 }}>
-                <Switch
+                <Switchs
                  id="theme"
                  checked={theme === 'dark'}
                  onChange={handleThemeChange}
@@ -234,6 +246,21 @@ export const Playground: React.FC = () => {
           {/* <SidebarFooter collapsed={collapsed} /> */}
         </div>
       </Sidebar>
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'center'}}>
+        <Routes>
+          {/* Other routes... */}
+          <Route path="/emitir" element={<ChequeEmitter />} />
+          <Route path="/list" element={<ChequesList />} />
+          {/* Other routes... */}
+        </Routes>
+      </div>
+
+    
+      {/* <main style={{ display: 'flex', width: '100vw', border: '2px solid red'}}>
+        <div style={{ justifyContent: 'center', alignItems: 'center', border: '2px solid red' }}>
+          <ChequesList />
+        </div>
+      </main> */}
     </div>
   );
 };

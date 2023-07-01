@@ -14,6 +14,7 @@ import './components/NFTCheque/NFTCheque.scss';
 import { Playground } from './components/storybook/Playground.tsx';
 import Welcome from './components/Welcome/Welcome.jsx';
 
+
 axios.defaults.withCredentials = true;
 
 function App() {
@@ -52,6 +53,7 @@ function App() {
   };
 
   return (
+
     <Router>
       <div className="App">
         {loggedIn ? (
@@ -66,6 +68,7 @@ function App() {
               ruta3="/logout"
               onLogout={handleLogout}
             />
+            {/* <Topbar /> */}
             <Playground />
             <Routes>
               <Route path="/" element={<Welcome />} />

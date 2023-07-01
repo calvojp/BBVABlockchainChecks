@@ -2,22 +2,23 @@ import React from 'react';
 import { Sidebar, Menu, MenuItem, SubMenu, menuClasses, MenuItemStyles} from 'react-pro-sidebar';
 import { Switchs } from './components/Switchs.tsx';
 import { SidebarHeader } from './components/SidebarHeader.tsx';
-import { Diamond } from './icons/Diamond.tsx';
+// import { Diamond } from './icons/Diamond.tsx';
 import { BarChart } from './icons/BarChart.tsx';
-import { Global } from './icons/Global.tsx';
-import { InkBottle } from './icons/InkBottle.tsx';
+// import { Global } from './icons/Global.tsx';
+// import { InkBottle } from './icons/InkBottle.tsx';
 import { Book } from './icons/Book.tsx';
 import { Calendar } from './icons/Calendar.tsx';
-import { ShoppingCart } from './icons/ShoppingCart.tsx';
+// import { ShoppingCart } from './icons/ShoppingCart.tsx';
 import { Service } from './icons/Service.tsx';
-import { SidebarFooter } from './components/SidebarFooter.tsx';
+// import { SidebarFooter } from './components/SidebarFooter.tsx';
 import { Badge } from './components/Badge.tsx';
 import { Typography } from './components/Typography.tsx';
-import { PackageBadges } from './components/PackageBadges.tsx';
+// import { PackageBadges } from './components/PackageBadges.tsx';
 import ChequesList from '../ChequesList/ChequesList';
 import ChequeEmitter from '../ChequeEmitter/ChequeEmitter';
+import Dashboard from '../Dashboard/Dashboard';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Alert from '@mui/material/Alert';
+// import Alert from '@mui/material/Alert';
 
 
 
@@ -43,7 +44,7 @@ const themes = {
   },
   dark: {
     sidebar: {
-      backgroundColor: '#0b2948',
+      backgroundColor: '#072146 ',
       color: '#8ba1b7',
     },
     menu: {
@@ -77,20 +78,20 @@ export const Playground: React.FC = () => {
   const [hasImage, setHasImage] = React.useState(false);
   const [theme, setTheme] = React.useState<Theme>('dark');
 
-  // handle on RTL change event
-  const handleRTLChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setRtl(e.target.checked);
-  };
+  // // handle on RTL change event
+  // const handleRTLChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setRtl(e.target.checked);
+  // };
 
   // handle on theme change event
   const handleThemeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setTheme(e.target.checked ? 'dark' : 'light');
   };
 
-  // handle on image change event
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setHasImage(e.target.checked);
-  };
+  // // handle on image change event
+  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   setHasImage(e.target.checked);
+  // };
 
   const menuItemStyles: MenuItemStyles = {
     root: {
@@ -216,7 +217,7 @@ export const Playground: React.FC = () => {
 
             <Menu menuItemStyles={menuItemStyles}>
               <MenuItem icon={<BarChart />} suffix={<Badge variant="success">New</Badge>}>
-                Mis datos
+              <Link to="/data" style={{ textDecoration: 'none', color: 'inherit' }}>Mis datos</Link>
               </MenuItem>
               <MenuItem icon={<Book />}>Consulta destinatarios</MenuItem>
               <MenuItem disabled icon={<Service />}>
@@ -246,7 +247,7 @@ export const Playground: React.FC = () => {
           {/* <SidebarFooter collapsed={collapsed} /> */}
         </div>
       </Sidebar>
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'center'}}>
+      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', border: '2px solid red'}}>
         <Routes>
           {/* Other routes... */}
           <Route path="/emitir" element={<ChequeEmitter />} />

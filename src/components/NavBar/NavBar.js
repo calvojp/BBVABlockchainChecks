@@ -25,7 +25,7 @@ export const NavBar = ({
   const handleLogoutClick = () => {
     onLogout();
     setMenu(false);
-    navigate('/contact'); // redirige a la página de inicio de sesión después de cerrar la sesión
+    navigate('/'); 
   };
 
   return (

@@ -1,34 +1,36 @@
 .loginContainer {
-  height: 80vh;
+  display: flex;
+  flex-direction: row;    
   align-items: center;
+  justify-content: center;
 }
 
 .loginPaper {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
   padding: 20px;
 }
 
 .loginTitle {
-  color: #0033A1;
+  color: #072146;
   margin-top: 20px;
+  
 }
 
 .loginIcon {
-  color: #0033A1;
+  color: #072146;
   font-size: 3rem;
 }
 
 .submitBtn {
-  margin: 20px 0;
+  margin: 20px;
+  color: #072146 !important;
+  margin-top: 10px !important;
 }
 
 .createAccBtn {
-  color: #0033A1;
+  color: #072146 !important;
 }
 
 .logoutBtn {
   color: #ff0000;
 }
+
